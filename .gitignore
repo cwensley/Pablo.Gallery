@@ -1,0 +1,5 @@
+*.userprefs
+*.suo
+bin
+packages
+obj

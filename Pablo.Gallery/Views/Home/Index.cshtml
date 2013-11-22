@@ -1,0 +1,16 @@
+﻿@{
+    ViewBag.Title = "Home";
+}
+
+<h2>Home</h2>
+
+
+<ul>
+    @foreach (var view in (IEnumerable<Pablo.Gallery.Models.Pack>)ViewBag.Packs)
+    {
+        <li>@view.Name</li>
+    }
+</ul>
+
+
+@Html.ActionLink("Scan", "Scan")
