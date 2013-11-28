@@ -3,26 +3,38 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Web;
+using Newtonsoft.Json.Converters;
+using Newtonsoft.Json;
+using System.Web.Mvc;
 
 namespace Pablo.Gallery.Api.ApiModels
 {
+	class DateOnlyConverter : IsoDateTimeConverter
+	{
+		public DateOnlyConverter()
+		{
+			DateTimeFormat = "yyyy-MM-dd";
+		}
+	}
+
 	[DataContract(Name = "pack")]
 	public class PackSummary
 	{
-		public static PackSummary FromModel(Models.Pack p)
+		Models.Pack pack;
+
+		public PackSummary(Models.Pack pack)
 		{
-			return new PackSummary
-			{
-				Name = p.Name,
-				Date = p.Date,
-				FileName = p.FileName
-			};
+			this.pack = pack;
+			Name = pack.Name;
+			Date = pack.Date;
+			FileName = pack.FileName;
 		}
 
 		[DataMember(Name = "name")]
 		public string Name { get; set; }
 
 		[DataMember(Name = "date")]
+		[JsonConverter(typeof(DateOnlyConverter))]
 		public DateTime? Date { get; set; }
 
 		[DataMember(Name = "groups")]
@@ -30,19 +42,34 @@ namespace Pablo.Gallery.Api.ApiModels
 
 		[DataMember(Name = "fileName")]
 		public string FileName { get; set; }
+
+		public FileSummary Thumbnail
+		{
+			get { return pack.Thumbnail != null ? new FileSummary(pack.Thumbnail) : null; }
+		}
+
+		public string Url(UrlHelper urlHelper, float? zoom = null, int? maxWidth = null)
+		{
+			if (Thumbnail != null)
+			{
+				return Thumbnail.Url(urlHelper, zoom, maxWidth);
+			}
+			else
+			{
+				return urlHelper.Content("~/Content/img/blank.png");
+			}
+		}
 	}
 
 	[DataContract(Name = "pack")]
 	public class PackDetail : PackSummary
 	{
-		public new static PackDetail FromModel(Models.Pack p)
+		public PackDetail(Models.Pack p, int start = 0, int count = int.MaxValue)
+			: base(p)
 		{
-			return new PackDetail
-			{
-				Name = p.Name,
-				Date = p.Date,
-				FileName = p.FileName,
-			};
+			Files = (from f in p.Files
+			        orderby f.Order
+				select new FileSummary(f)).Skip(start).Take(count);
 		}
 
 		[DataMember(Name = "files")]

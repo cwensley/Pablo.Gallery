@@ -23,6 +23,9 @@ namespace Pablo.Gallery.Api.ApiModels
 	[DataContract(Name = "year")]
 	public class YearDetail : YearBase
 	{
+		[DataMember(Name = "year")]
+		public int Year { get; set; }
+
 		[DataMember(Name = "packs")]
 		public IEnumerable<PackSummary> Packs { get; set; }
 	}

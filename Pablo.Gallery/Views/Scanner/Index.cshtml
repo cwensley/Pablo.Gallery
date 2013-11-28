@@ -1,0 +1,92 @@
+﻿
+<div>
+	<input type="button" id="button" value="Start Scanning" />
+
+	<span class="button" id="progress" style="display:none;">
+		Running Process...
+		<img src= "@Url.Content("~/Content/img/ajax-loader.gif")" />
+	</span>
+	<pre id="msg" style="max-height: 50em; overflow-y:scroll;"></pre>
+
+</div>
+
+@section scripts {
+	<script type="text/javascript">
+
+	function setMsg(text)
+	{
+		var msg = $('#msg');
+		var atTop = msg.scrollTop() > (msg[0].scrollHeight - msg.height() - 20);
+		msg.text(text);
+		if (atTop)
+			msg.scrollTop(msg[0].scrollHeight);
+	}
+
+	function addMsg(text)
+	{
+		var msg = $('#msg');
+		setMsg(msg.text() + text + '\n');
+	}
+
+	function startProcess() {
+		var msg = $('#msg');
+	    $.ajax({
+	        type: "POST",
+	        url: "@Url.Action("Start")",
+	        data: $("form").serialize(),
+	        success: function (data) {
+	            $('#button').toggle();
+	            $('#progress').toggle();
+	            window.setTimeout(checkProcess, 1000);
+	        },
+	        error: function (jqXHR, textStatus, errorThrown) {
+	        	addMsg("Error starting process: " + jqXHR.status + " " + errorThrown);
+	        }
+	    });
+	}
+	 
+	function checkProcess() {
+		var msg = $('#msg');
+	    $.ajax({
+	        type: "POST",
+	        url: "@Url.Action("Progress")",
+	        success: function (data) {
+	        	setMsg(data.Message);
+	            if (data.Done) {
+	                endProcess();
+	            } else {
+	                window.setTimeout(checkProcess, 1000);
+	            }
+	        },
+	        error: function (jqXHR, textStatus, errorThrown) {
+		    	addMsg("Error checking process: " + jqXHR.status + " " + errorThrown);
+	            $('#button').toggle();
+	            $('#progress').toggle();
+	        }
+	    });
+	}
+	 
+	function endProcess() {
+		var msg = $('#msg');
+		$('#button').toggle();
+		$('#progress').toggle();
+		$.ajax({
+		    type: "POST",
+		    url: "@Url.Action("End")",
+		    success: function (data) {
+		    	setMsg(data.Message);
+		    },
+		    error: function (jqXHR, textStatus, errorThrown) {
+		    	addMsg("Error ending process: " + jqXHR.status + " " + errorThrown);
+		    }
+	    });
+	}
+	 
+	$(document).ready(function () {
+	    $('#button').click(function () {
+	        startProcess();
+	    });
+	});
+</script>
+}
+

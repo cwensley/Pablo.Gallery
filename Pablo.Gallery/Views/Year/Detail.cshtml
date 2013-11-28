@@ -1,0 +1,23 @@
+﻿@model Pablo.Gallery.Api.ApiModels.YearDetail
+@{
+    ViewBag.Title = "Year " + @Model.Year;
+}
+
+<h2>@Model.Year</h2>
+
+<ul class="files">
+    @foreach (var pack in Model.Packs)
+    {
+        <li class="file">
+        	<a href="@Url.Action("Detail", "Pack", new { pack = pack.Name })">
+		        <span class="file-image">
+	       			<img src="@pack.Url(Url, maxWidth: 320)" />
+				</span>
+		        <span class="file-name">@pack.Name</span>
+			</a>
+        </li>
+    }
+</ul>
+
+
+        

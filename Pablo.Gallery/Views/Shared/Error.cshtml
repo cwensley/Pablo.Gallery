@@ -1,5 +1,8 @@
 ﻿@{
     Layout = null;
+
+    var http = Model.Exception as HttpException;
+    var errorCode = http != null ? http.GetHttpCode().ToString() : "General Error";
 }
 
 <!DOCTYPE html>
@@ -10,12 +13,13 @@
 </head>
 <body>
     <hgroup>
-        <h1>Error.</h1>
+        <h1>@errorCode</h1>
         <h2>An error occurred while processing your request.</h2>
+
     </hgroup>
     @if (System.Web.HttpContext.Current.IsDebuggingEnabled)
     {
-        <pre style="white-space: pre-wrap">@Model.Exception.ToString()</pre>
+        <pre style="display: block; width: 100%; overflow-x: scroll">@Model.Exception</pre>
     }
 </body>
 </html>

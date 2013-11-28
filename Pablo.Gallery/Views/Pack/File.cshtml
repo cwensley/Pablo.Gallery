@@ -1,0 +1,45 @@
+﻿@model Pablo.Gallery.Api.ApiModels.FileDetail
+@{
+    ViewBag.Title = "File " + Model.Pack + "\\" + Model.FileName;
+	var imgClass = Model.UseNearestNeighbour ? "nearest" : "";
+}
+
+<h2>@Model.Pack\@Model.FileName</h2>
+
+    @Html.ActionLink(Model.Pack, "Detail", new { pack = Model.Pack })
+
+    <p>
+    <a href="@Model.RawUrl(Url)">Download File</a>
+    </p>
+<p class="main-image">
+	<img src="@Url.Content("~/Content/img/ajax-loader.gif")" />
+</p>
+
+
+@section scripts {
+	@Scripts.Render("~/bundles/js")
+
+<script type="text/javascript">
+	$(function() {
+		var img = $(".main-image img");
+		var width;
+		var height;
+		$(window).resize(function() {
+			img.toggleClass("@imgClass", img.width() == width);
+		});
+		img.imagesLoaded(function() {
+			width = img.width();
+			height = img.height();
+			img.addClass('sized');
+			img.toggleClass("@imgClass", img.width() == width);
+		});
+		img.attr("src", "@Model.Url(Url)");
+
+	});
+
+</script>
+}
+
+
+
+        

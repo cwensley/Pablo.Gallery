@@ -1,0 +1,24 @@
+﻿@model Pablo.Gallery.Api.ApiModels.PackResult
+@{
+    ViewBag.Title = "Packs";
+}
+
+<h2>Packs</h2>
+
+<ul class="files">
+    @foreach (var pack in Model.Packs)
+    {
+        <li class="file">
+        	<a href="@Url.Action("Detail", "Pack", new { pack = pack.Name })">
+		        <span class="file-image">
+	       			<img src="@pack.Url(Url, maxWidth: 320)" />
+				</span>
+		        <span class="file-name">@pack.Name</span>
+			</a>
+        </li>
+    }
+</ul>
+
+
+
+    

@@ -8,7 +8,24 @@
     @Scripts.Render("~/bundles/modernizr")
 </head>
 <body>
-    @RenderBody()
+    @{
+    var controllerName = ViewContext.Controller.GetType().Name;
+    var suffix = "Controller";
+    if (controllerName.EndsWith(suffix)) {
+    	controllerName = controllerName.Substring(0, controllerName.Length - suffix.Length);
+    }
+    var viewName = System.IO.Path.GetFileNameWithoutExtension(((RazorView)Html.ViewContext.View).ViewPath);
+	var pageClass = string.Format("page-{0}-{1}", controllerName, viewName).ToLowerInvariant();
+    }
+    <div class="header">
+    	<a href="@Url.Content("~/")">
+    		Pablo Gallery
+    	</a>
+    </div>
+
+    <div class="@pageClass">
+    	@RenderBody()
+    </div>
 
     @Scripts.Render("~/bundles/jquery")
     @RenderSection("scripts", required: false)

@@ -1,11 +1,125 @@
 ﻿
-@import 'elements';
+@import 'elements.less';
 
 @import 'Site.css';
 
-@my-color: white;
+@retina:   ~"(-webkit-min-device-pixel-ratio: 2)", ~"(min-resolution: 192dpi)";
 
-body
+@mobile:   ~"only screen and (max-device-width : 640px)";
+
+@desktop:  ~"only screen and (min-device-width : 640px)";
+
+.image-rendering-nearest() {
+	image-rendering: -moz-crisp-edges;         /* Firefox */
+	image-rendering:   -o-crisp-edges;         /* Opera */
+	image-rendering: -webkit-optimize-contrast;/* Webkit (non-standard naming) */
+	image-rendering: crisp-edges;
+	-ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */
+}
+
+.page-pack-detail, .page-year-detail, .page-file-index, .page-pack-index
 {
-    background-color: @my-color;
+    .files {
+    	@media @desktop {
+    		margin: 10px;
+    	}
+    	padding: 0;
+
+    	li.file {
+    		
+    		display: block;
+    		float: left;
+	    	max-width: 160px;
+	    	height: 140px;
+	    	margin: 10px;
+			overflow: hidden;
+			background-color: black;
+			text-align: center;
+			position: relative;
+			.rounded(4px);
+			.transition();
+
+			a {
+				text-decoration: none;
+				color: gray;
+			}
+
+
+			.file-image
+			{
+			    width: 160px;
+			    height: 110px;
+			    display: block;
+			    overflow-y: visible;
+			    line-height: 110px;
+
+			    img {
+				    max-width: 160px;
+			    }
+			}
+
+			.file-name
+			{
+				font-size: 12px;
+				display: inline-block;
+				height: 30px;
+				padding: 6px 0px;
+				white-space: nowrap;
+				width: 100%;
+				background-color: black;
+				background-color: rgba(0,0,0,0.8);
+			}
+	    }
+
+    	.file:hover {
+    		.box-shadow(0px 0px 10px black);
+
+    		a {
+    			color: white;
+    		}
+    		.file-name
+    		{
+				background-color: #333;
+    		}
+    	}
+
+    }
+}
+
+.page-file-index
+{
+	.files {
+		li.file {
+			.pack-name {
+				display: block;
+				font-size: 10px;
+				height: 12px;
+			}
+
+			.file-name {
+				height: 18px;
+				padding: 0px;
+			}
+		}
+	}
+}
+
+.page-pack-file
+{
+    .main-image
+    {
+	    text-align: center;
+
+		img.sized
+		{
+			max-width: 100%;
+		}
+
+		@media @retina {
+			img.nearest
+			{
+				.image-rendering-nearest();
+			}
+		}
+	}
 }

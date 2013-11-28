@@ -1,0 +1,15 @@
+﻿@model Pablo.Gallery.Api.ApiModels.YearResult
+@{
+    ViewBag.Title = "Years";
+}
+
+<h2>Years</h2>
+
+    <ul>
+    @foreach (var year in Model.Years)
+    {
+        <li>
+        @Html.ActionLink(year.Year.ToString(), "Detail", new { year = year.Year })
+        </li>
+    }
+</ul>

@@ -1,18 +1,9 @@
-﻿using System.Web;
-using System.Web.Optimization;
+﻿using System.Web.Optimization;
+using Pablo.Gallery.Logic.Less;
 
 namespace Pablo.Gallery
 {
-
-	public class LessTransform : IBundleTransform
-	{
-		public void Process(BundleContext context, BundleResponse response)
-		{
-			response.Content = dotless.Core.Less.Parse(response.Content);
-			response.ContentType = "text/css";
-		}
-	}
-	public class BundleConfig
+	public static class BundleConfig
 	{
 		// For more information on Bundling, visit http://go.microsoft.com/fwlink/?LinkId=254725
 		public static void RegisterBundles(BundleCollection bundles)
@@ -26,6 +17,10 @@ namespace Pablo.Gallery
 			bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
 						"~/Scripts/jquery.unobtrusive*",
 						"~/Scripts/jquery.validate*"));
+
+			bundles.Add(new ScriptBundle("~/bundles/js").Include(
+				"~/Scripts/imagesloaded.pkgd.js"
+			));
 
 			// Use the development version of Modernizr to develop with and learn from. Then, when you're
 			// ready for production, use the build tool at http://modernizr.com to pick only the tests you need.

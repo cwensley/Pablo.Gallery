@@ -1,16 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Data.Entity.Migrations;
-using System.Linq;
-using System.Web;
 
 namespace Pablo.Gallery.Models
 {
-	internal sealed class Configuration : DbConfiguration
+	sealed class Configuration : DbConfiguration
 	{
 		public Configuration()
 		{
+			// don't check or create database if it doesn't exist
+			
+			//SetDatabaseInitializer<GalleryContext>(null);
 		}
 	}
 
@@ -18,22 +17,27 @@ namespace Pablo.Gallery.Models
 	{
 		public GalleryConfiguration()
 		{
-			AutomaticMigrationsEnabled = false;
+			AutomaticMigrationsEnabled = true;
 		}
 	}
 
 	public class GalleryContext : DbContext
 	{
+		public const string Schema = "gallery";
+
 		public GalleryContext()
 			: base("Gallery")
 		{
 		}
 
+		public bool IsPostgres
+		{
+			get { return this.Database.Connection is Npgsql.NpgsqlConnection; }
+		}
+
 		public DbSet<Pack> Packs { get; set; }
 		public DbSet<File> Files { get; set; }
 		public DbSet<Category> Categories { get; set; }
-		//public DbSet<PackCategory> PackCategories { get; set; }
-
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
@@ -45,7 +49,7 @@ namespace Pablo.Gallery.Models
 			   {
 				   m.MapLeftKey("Pack_Id");
 				   m.MapRightKey("Category_Id");
-				   m.ToTable("Pack_Category");
+				   m.ToTable("Pack_Category", Schema);
 			   });
 		}
 	}

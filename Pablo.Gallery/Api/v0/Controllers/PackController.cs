@@ -1,43 +1,43 @@
 ﻿using Pablo.Gallery.Api.ApiModels;
 using Pablo.Gallery.Logic;
-using PabloDraw;
 using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Web;
 using System.Web.Http;
+using System.Net;
+using System.IO;
+using System.Threading.Tasks;
+using Pablo.Gallery.Logic.Converters;
 
-namespace Pablo.Gallery.Api.v0.Controllers
+namespace Pablo.Gallery.Api.V0.Controllers
 {
 	public class PackController : ApiController
 	{
-		Models.GalleryContext db = new Models.GalleryContext();
+		readonly Models.GalleryContext db = new Models.GalleryContext();
 
 		[HttpGet]
-		public PackResult Index()
+		public PackResult Index(int start = 0, int limit = 100)
 		{
 			var packs = from p in db.Packs
-						select p;
+			            select p;
 			return new PackResult
 			{
-				Packs = from p in packs.AsEnumerable() select PackSummary.FromModel(p)
+				Packs = from p in packs.Skip(start).Take(limit).AsEnumerable()
+				        select new PackSummary(p)
 			};
 		}
 
 		[HttpGet]
-		public PackDetail Index([FromUri(Name = "id")]string packName)
+		public PackDetail Index([FromUri(Name = "id")]string packName, int start = 0, int limit = 100)
 		{
 			var packs = from p in db.Packs
-						where p.Name == packName
-						select p;
-			return PackDetail.FromModel(packs.FirstOrDefault());
+			            where p.Name == packName
+			            select p;
+			var pack = packs.FirstOrDefault();
+			if (pack == null)
+				throw new HttpResponseException(HttpStatusCode.NotFound);
+			return new PackDetail(pack, start, limit);
 		}
 
 		static string GetMediaType(string format)
@@ -58,43 +58,82 @@ namespace Pablo.Gallery.Api.v0.Controllers
 			}
 		}
 
-		//static PabloEngine pablo = new PabloEngine("win");
+		[HttpGet]
+		public FileDetail Index([FromUri(Name = "id")]string pack, [FromUri(Name = "id2")] string fileName)
+		{
+			fileName = Scanner.NormalizedPath(fileName);
+			var files = from f in db.Files
+			            where f.Pack.Name == pack && f.FileName == fileName
+			            select f;
+			var file = files.FirstOrDefault();
+			if (file == null)
+				throw new HttpResponseException(HttpStatusCode.NotFound);
+			return new FileDetail(file);
+		}
 
 		[HttpGet]
-		public HttpResponseMessage Index([FromUri(Name = "id")]string pack, [FromUri(Name = "id2")] string file, string format, int zoom = 100)
+		public async Task<HttpResponseMessage> Index([FromUri(Name = "id")]string packName, [FromUri(Name = "id2")] string fileName, string format, int? zoom = null, [FromUri(Name = "max-width")] int? maxWidth = null)
 		{
-			var extractor = new Extractor();
+			fileName = Scanner.NormalizedPath(fileName);
+			var file = db.Files.FirstOrDefault(r => r.Pack.Name == packName && r.FileName == fileName);
+			if (file == null)
+				throw new HttpResponseException(HttpStatusCode.NotFound);
 
-			var outFile = file + "." + format;
-			var streamOutput = new PushStreamContent((outputStream, content, context) =>
+			var raw = string.Equals(format, "raw", StringComparison.OrdinalIgnoreCase);
+
+			var packArchiveFileName = Path.Combine(Global.SixteenColorsArchiveLocation, file.Pack.NativeFileName);
+			var extractor = Logic.Extractors.ExtractorFactory.GetFileExtractor(packArchiveFileName);
+			var outFile = file.NativeFileName;
+
+			StreamContent content;
+			if (raw)
 			{
-				var converter = new PabloProcessConverter();
-				converter.Convert(new ConvertInfo
+				content = new StreamContent(await extractor.ExtractFile(packArchiveFileName, file.FileName));
+			}
+			else
+			{
+				if (zoom != null)
+					outFile += ".z" + zoom.Value;
+				if (maxWidth != null)
+					outFile += ".x" + maxWidth.Value;
+				outFile += "." + format;
+
+				var converter = ConverterFactory.GetConverter(file.FileName);
+				var convertInfo = new ConvertInfo
 				{
-					Pack = pack,
-					InputStream = () => extractor.Extract(pack, file),
-					FileName = file,
-					OutputStream = outputStream,
+					Pack = file.Pack,
+					ExtractFile = async destFile => await extractor.ExtractFile(packArchiveFileName, file.FileName, destFile),
+					FileName = file.NativeFileName,
 					OutFileName = outFile,
-					Zoom = zoom
-				}).Wait();
-				outputStream.Close();
-			});
-			/**/
+					Zoom = zoom,
+					MaxWidth = maxWidth
+				};
+				var stream = await converter.Convert(convertInfo);
+				content = new StreamContent(stream);
+			}
 
 			var mediaType = GetMediaType(format);
-			streamOutput.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
+			content.Headers.ContentType = new MediaTypeHeaderValue(mediaType);
 			var disposition = mediaType == "application/octet-stream" ? "attachment" : "inline";
-			streamOutput.Headers.ContentDisposition = new ContentDispositionHeaderValue(disposition)
+			content.Headers.ContentDisposition = new ContentDispositionHeaderValue(disposition)
 			{
-				FileName = outFile
+				FileName = Path.GetFileName(outFile)
 			};
 
-			return new HttpResponseMessage
+			var response = new HttpResponseMessage { Content = content };
+			response.Headers.CacheControl = new CacheControlHeaderValue
 			{
-				Content = streamOutput
+				MaxAge = new TimeSpan(0, 10, 0),
+				Public = true
 			};
-			return new HttpResponseMessage(HttpStatusCode.NotFound);
+			return response;
+		}
+
+		protected override void Dispose(bool disposing)
+		{
+			if (disposing)
+				db.Dispose();
+			base.Dispose(disposing);
 		}
 	}
 }
