@@ -7,15 +7,12 @@ Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
-		Release-MAS|Any CPU = Release-MAS|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{43E85444-39ED-470F-BA00-E9FD0DAF7BE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{43E85444-39ED-470F-BA00-E9FD0DAF7BE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{43E85444-39ED-470F-BA00-E9FD0DAF7BE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{43E85444-39ED-470F-BA00-E9FD0DAF7BE4}.Release|Any CPU.Build.0 = Release|Any CPU
-		{43E85444-39ED-470F-BA00-E9FD0DAF7BE4}.Release-MAS|Any CPU.ActiveCfg = Debug|Any CPU
-		{43E85444-39ED-470F-BA00-E9FD0DAF7BE4}.Release-MAS|Any CPU.Build.0 = Debug|Any CPU
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
 		StartupItem = Pablo.Gallery\Pablo.Gallery.csproj
@@ -51,7 +48,6 @@ Global
 		$0.TextStylePolicy = $3
 		$3.FileWidth = 120
 		$3.TabsToSpaces = False
-		$3.EolMarker = Windows
 		$3.inheritsSet = VisualStudio
 		$3.inheritsScope = text/plain
 		$3.scope = text/plain
