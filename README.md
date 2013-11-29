@@ -22,12 +22,10 @@ In ubuntu 12.04 or 13.x, add the following ppa to your sources:
 	
 Then, install:
 
-	sudo apt-get install mono-complete
-	
-	sudo apt-get install mono-xsp4
-	
+	sudo apt-get install mono-complete mono-xsp4 mono-fastcgi-server4
 
-You can then run `xsp4` in the web directory to start the application.
+
+You can then run `xsp4` in the web directory to start the application for testing, or use the fastcgi server from nginx for production.
 
 
 ### Windows
