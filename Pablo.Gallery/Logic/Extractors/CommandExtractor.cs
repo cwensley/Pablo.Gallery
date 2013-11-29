@@ -35,6 +35,7 @@ namespace Pablo.Gallery.Logic.Extractors
 					FileName = ExecutablePath,
 					Arguments = args,
 					UseShellExecute = false,
+					LoadUserProfile = false,
 					RedirectStandardOutput = true,
 					RedirectStandardError = true,
 					CreateNoWindow = true
