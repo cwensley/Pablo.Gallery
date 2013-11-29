@@ -9,6 +9,7 @@ using System.Net;
 using System.IO;
 using System.Threading.Tasks;
 using Pablo.Gallery.Logic.Converters;
+using Pablo.Gallery.Logic.Extractors;
 
 namespace Pablo.Gallery.Api.V0.Controllers
 {
@@ -71,32 +72,12 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			return new FileDetail(file);
 		}
 
-		[HttpGet]
-		public async Task<HttpResponseMessage> Index([FromUri(Name = "id")]string packName, [FromUri(Name = "id2")] string fileName, string format, int? zoom = null, [FromUri(Name = "max-width")] int? maxWidth = null)
+
+		async Task GetStream(Stream outStream, string outFile, string packArchiveFileName, Models.File file, int? zoom, int? maxWidth)
 		{
-			fileName = Scanner.NormalizedPath(fileName);
-			var file = db.Files.FirstOrDefault(r => r.Pack.Name == packName && r.FileName == fileName);
-			if (file == null)
-				throw new HttpResponseException(HttpStatusCode.NotFound);
-
-			var raw = string.Equals(format, "raw", StringComparison.OrdinalIgnoreCase);
-
-			var packArchiveFileName = Path.Combine(Global.SixteenColorsArchiveLocation, file.Pack.NativeFileName);
-			var extractor = Logic.Extractors.ExtractorFactory.GetFileExtractor(packArchiveFileName);
-			var outFile = file.NativeFileName;
-
-			StreamContent content;
-			if (raw)
+			using (outStream)
 			{
-				content = new StreamContent(await extractor.ExtractFile(packArchiveFileName, file.FileName));
-			}
-			else
-			{
-				if (zoom != null)
-					outFile += ".z" + zoom.Value;
-				if (maxWidth != null)
-					outFile += ".x" + maxWidth.Value;
-				outFile += "." + format;
+				var extractor = ExtractorFactory.GetFileExtractor(packArchiveFileName);
 
 				var converter = ConverterFactory.GetConverter(file.FileName);
 				var convertInfo = new ConvertInfo
@@ -109,7 +90,46 @@ namespace Pablo.Gallery.Api.V0.Controllers
 					MaxWidth = maxWidth
 				};
 				var stream = await converter.Convert(convertInfo);
-				content = new StreamContent(stream);
+				stream.CopyTo(outStream);
+			}
+		}
+
+		async Task GetRawStream(Stream outStream, string packArchiveFileName, Models.File file)
+		{
+			using (outStream)
+			{
+				var extractor = ExtractorFactory.GetFileExtractor(packArchiveFileName);
+				var stream = await extractor.ExtractFile(packArchiveFileName, file.FileName);
+				stream.CopyTo(outStream);
+			}
+		}
+
+		[HttpGet]
+		public async Task<HttpResponseMessage> Index([FromUri(Name = "id")]string packName, [FromUri(Name = "id2")] string fileName, string format, int? zoom = null, [FromUri(Name = "max-width")] int? maxWidth = null)
+		{
+			fileName = Scanner.NormalizedPath(fileName);
+			var file = db.Files.FirstOrDefault(r => r.Pack.Name == packName && r.FileName == fileName);
+			if (file == null)
+				throw new HttpResponseException(HttpStatusCode.NotFound);
+
+			var raw = string.Equals(format, "raw", StringComparison.OrdinalIgnoreCase);
+
+			var packArchiveFileName = Path.Combine(Global.SixteenColorsArchiveLocation, file.Pack.NativeFileName);
+			var outFile = file.NativeFileName;
+
+			HttpContent content;
+			if (raw)
+			{
+				content = new PushStreamContent((s, hc, t) => GetRawStream(s, packArchiveFileName, file));
+			}
+			else
+			{
+				if (zoom != null)
+					outFile += ".z" + zoom.Value;
+				if (maxWidth != null)
+					outFile += ".x" + maxWidth.Value;
+				outFile += "." + format;
+				content = new PushStreamContent((s, hc, t) => GetStream(s, outFile, packArchiveFileName, file, zoom, maxWidth));
 			}
 
 			var mediaType = GetMediaType(format);
