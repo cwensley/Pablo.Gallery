@@ -52,7 +52,7 @@ namespace Pablo.Gallery.Api.ApiModels
 
 		}
 
-		public string Url(UrlHelper url, float? zoom = null, int? maxWidth = null)
+		public string Url(float? zoom = null, int? maxWidth = null)
 		{
 			var format = PreferredFormat(zoom, maxWidth);
 			if (format != null)
@@ -63,12 +63,12 @@ namespace Pablo.Gallery.Api.ApiModels
 					sb.AppendFormat("&zoom={0:0}", zoom * 100);
 				if (maxWidth != null)
 					sb.AppendFormat("&max-width={0}", maxWidth);
-				return url.Content(sb.ToString());
+				return sb.ToString();
 			}
 			else
 			{
 				var img = GetGenericImageUrl(System.IO.Path.GetExtension(NativeFileName));
-				return url.Content(string.Format("~/Content/img/file-type/{0}.png", img));
+				return string.Format("~/Content/img/file-type/{0}.png", img);
 			}
 		}
 

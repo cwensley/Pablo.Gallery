@@ -33,7 +33,7 @@
 			img.addClass('sized');
 			img.toggleClass("@imgClass", img.width() == width);
 		});
-		img.attr("src", "@Model.Url(Url)");
+		img.attr("src", "@Url.Content(Model.Url())");
 
 	});
 

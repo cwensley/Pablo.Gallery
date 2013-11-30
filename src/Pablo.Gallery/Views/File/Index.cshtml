@@ -1,4 +1,4 @@
-﻿@model System.Collections.Generic.IEnumerable<Pablo.Gallery.Api.ApiModels.FileSummary>
+@model System.Collections.Generic.IEnumerable<Pablo.Gallery.Api.ApiModels.FileSummary>
 @{
     ViewBag.Title = "File Results";
 }
@@ -9,7 +9,7 @@
         <li class="file">
         	<a href="@Url.Content(string.Format("~/pack/{0}", file.Path))">
 	        	<span class="file-image">
-	       			<img src="@file.Url(Url, maxWidth: 320)" />
+	       			<img src="@Url.Content(file.Url(maxWidth: 320))" />
 				</span>
 		        <span class="pack-name">@file.Pack</span>
 		        <span class="file-name">@Path.GetFileName(file.NativeFileName)</span>

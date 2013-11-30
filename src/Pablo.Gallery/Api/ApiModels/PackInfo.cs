@@ -48,15 +48,15 @@ namespace Pablo.Gallery.Api.ApiModels
 			get { return pack.Thumbnail != null ? new FileSummary(pack.Thumbnail) : null; }
 		}
 
-		public string Url(UrlHelper urlHelper, float? zoom = null, int? maxWidth = null)
+		public string Url(float? zoom = null, int? maxWidth = null)
 		{
 			if (Thumbnail != null)
 			{
-				return Thumbnail.Url(urlHelper, zoom, maxWidth);
+				return Thumbnail.Url(zoom, maxWidth);
 			}
 			else
 			{
-				return urlHelper.Content("~/Content/img/blank.png");
+				return "~/Content/img/blank.png";
 			}
 		}
 	}

@@ -11,7 +11,7 @@
         <li class="file">
         	<a href="@Url.Action("Detail", "Pack", new { pack = pack.Name })">
 		        <span class="file-image">
-	       			<img src="@pack.Url(Url, maxWidth: 320)" />
+	       			<img src="@Url.Content(pack.Url(maxWidth: 320))" />
 				</span>
 		        <span class="file-name">@pack.Name</span>
 			</a>
