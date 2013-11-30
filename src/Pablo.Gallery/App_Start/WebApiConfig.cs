@@ -1,7 +1,8 @@
-﻿using Pablo.Gallery.Logic;
-using System.Net.Http.Formatting;
+﻿using System.Net.Http.Formatting;
 using System.Web.Http;
 using System.Web.Http.Dispatcher;
+using Pablo.Gallery.Logic;
+using Pablo.Gallery.Logic.Filters;
 
 namespace Pablo.Gallery
 {

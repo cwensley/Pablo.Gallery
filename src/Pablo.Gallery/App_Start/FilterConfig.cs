@@ -1,6 +1,6 @@
 ﻿using System.Web;
 using System.Web.Mvc;
-using Pablo.Gallery.Logic;
+using Pablo.Gallery.Logic.Filters;
 
 namespace Pablo.Gallery
 {

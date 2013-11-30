@@ -8,8 +8,8 @@ namespace Pablo.Gallery.Models
 		public Configuration()
 		{
 			// don't check or create database if it doesn't exist
-			
-			//SetDatabaseInitializer<GalleryContext>(null);
+			// hide (harmless) npgsql exceptions when debugging
+			SetDatabaseInitializer<GalleryContext>(null);
 		}
 	}
 
@@ -36,21 +36,38 @@ namespace Pablo.Gallery.Models
 		}
 
 		public DbSet<Pack> Packs { get; set; }
+
 		public DbSet<File> Files { get; set; }
+
 		public DbSet<Category> Categories { get; set; }
+
+		public DbSet<User> Users { get; set; }
+
+		public DbSet<Role> Roles { get; set; }
+
+		public DbSet<UserOAuthMembership> UserOAuthMemberships { get; set; }
 
 		protected override void OnModelCreating(DbModelBuilder modelBuilder)
 		{
 			modelBuilder.Entity<Pack>().
-			  HasMany(c => c.Categories).
-			  WithMany(p => p.Packs).
-			  Map(
-			   m =>
-			   {
-				   m.MapLeftKey("Pack_Id");
-				   m.MapRightKey("Category_Id");
-				   m.ToTable("Pack_Category", Schema);
-			   });
+				HasMany(c => c.Categories).
+				WithMany(p => p.Packs).
+				Map(m =>
+			{
+				m.MapLeftKey("Pack_Id");
+				m.MapRightKey("Category_Id");
+				m.ToTable("Pack_Category", Schema);
+			});
+
+			modelBuilder.Entity<User>().
+				HasMany(c => c.Roles).
+				WithMany(p => p.Users).
+				Map(m =>
+			{
+				m.MapLeftKey("User_Id");
+				m.MapRightKey("Role_Id");
+				m.ToTable("User_Role", Schema);
+			});
 		}
 	}
 }

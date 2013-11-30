@@ -4,7 +4,7 @@ using System.Net.Http;
 using System.Net;
 using System.Web;
 
-namespace Pablo.Gallery.Logic
+namespace Pablo.Gallery.Logic.Filters
 {
 	public class LoggingApiExceptionFilter : ExceptionFilterAttribute
 	{

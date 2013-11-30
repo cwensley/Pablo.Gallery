@@ -15,6 +15,9 @@
  Date: 11/28/2013 17:55:17 PM
 */
 
+CREATE SCHEMA IF NOT EXISTS "gallery"
+SET SCHEMA 'gallery';
+
 -- ----------------------------
 --  Sequence structure for Category_Id_seq
 -- ----------------------------
@@ -28,17 +31,17 @@ DROP SEQUENCE IF EXISTS "File_Id_seq";
 CREATE SEQUENCE "File_Id_seq" INCREMENT 1 START 160913 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 
 -- ----------------------------
---  Sequence structure for Pack_id_seq
+--  Sequence structure for Pack_Id_seq
 -- ----------------------------
-DROP SEQUENCE IF EXISTS "Pack_id_seq";
-CREATE SEQUENCE "Pack_id_seq" INCREMENT 1 START 4264 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
+DROP SEQUENCE IF EXISTS "Pack_Id_seq";
+CREATE SEQUENCE "Pack_Id_seq" INCREMENT 1 START 4264 MAXVALUE 9223372036854775807 MINVALUE 1 CACHE 1;
 
 -- ----------------------------
 --  Table structure for Pack
 -- ----------------------------
 DROP TABLE IF EXISTS "Pack";
 CREATE TABLE "Pack" (
-	"Id" int4 NOT NULL DEFAULT nextval('"Pack_id_seq"'::regclass),
+	"Id" int4 NOT NULL DEFAULT nextval('"Pack_Id_seq"'::regclass),
 	"Name" varchar NOT NULL COLLATE "default",
 	"FileName" varchar COLLATE "default",
 	"Date" date,
@@ -115,7 +118,7 @@ WITH (OIDS=FALSE);
 -- ----------------------------
 ALTER SEQUENCE "Category_Id_seq" OWNED BY "Category"."Id";
 ALTER SEQUENCE "File_Id_seq" OWNED BY "File"."Id";
-ALTER SEQUENCE "Pack_id_seq" OWNED BY "Pack"."Id";
+ALTER SEQUENCE "Pack_Id_seq" OWNED BY "Pack"."Id";
 -- ----------------------------
 --  Primary key structure for table Pack
 -- ----------------------------
