@@ -45,7 +45,7 @@ namespace Pablo.Gallery.Logic.Membership
 			{
 				var user = db.Users.FirstOrDefault(r => r.UserName == username);
 				if (user == null)
-					return null;
+					return new string[0];
 				return user.Roles.Select(r => r.Name).ToArray();
 			}
 		}

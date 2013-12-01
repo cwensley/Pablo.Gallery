@@ -44,6 +44,10 @@ namespace Pablo.Gallery.Models
 
 		public DateTime? PasswordVerificationExpiryDate { get; set; }
 
+		public string PasswordQuestion { get; set; }
+
+		public string PasswordAnswer { get; set; }
+
 		public virtual ICollection<UserOAuthMembership> OAuthMemberships { get; set; }
 
 		public virtual ICollection<Role> Roles { get; set; }

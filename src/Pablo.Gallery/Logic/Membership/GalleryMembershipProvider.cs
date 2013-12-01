@@ -6,14 +6,73 @@ using WebMatrix.WebData;
 using System.Security.Cryptography;
 using System.Configuration.Provider;
 using System.Web.Security;
+using System.IO;
+using System.Text;
+using System.Web.Configuration;
+using System.Web.Hosting;
+using System.Collections.Specialized;
 
 namespace Pablo.Gallery.Logic.Membership
 {
 	public class GalleryMembershipProvider : ExtendedMembershipProvider
 	{
+		MembershipPasswordFormat passwordFormat;
+		MachineKeySection machineKey;
+		int maxInvalidPasswordAttempts;
+		int minRequiredNonAlphanumericCharacters;
+		int minRequiredPasswordLength;
+		int passwordAttemptWindow;
+		string passwordStrengthRegularExpression;
+		bool enablePasswordReset;
+		bool enablePasswordRetrieval;
+		bool requiresQuestionAndAnswer;
+		bool requiresUniqueEmail;
+		int newPasswordLength;
+		bool emailAsUserName;
+
 		Models.GalleryContext Database()
 		{
 			return new Models.GalleryContext();
+		}
+
+		public override void Initialize(string name, NameValueCollection config)
+		{
+			if (string.IsNullOrEmpty(config["description"]))
+			{
+				config.Remove("description");
+				config.Add("description", "Gallery Membership Provider");
+			}
+
+			base.Initialize(name, config);
+
+			ApplicationName = GetConfigValue(config["applicationName"], HostingEnvironment.ApplicationVirtualPath);
+			maxInvalidPasswordAttempts = Convert.ToInt32(GetConfigValue(config["maxInvalidPasswordAttempts"], "5"));
+			passwordAttemptWindow = Convert.ToInt32(GetConfigValue(config["passwordAttemptWindow"], "10"));
+			minRequiredNonAlphanumericCharacters = Convert.ToInt32(GetConfigValue(config["minRequiredNonAlphanumericCharacters"], "1"));
+			minRequiredPasswordLength = Convert.ToInt32(GetConfigValue(config["minRequiredPasswordLength"], "7"));
+			passwordStrengthRegularExpression = Convert.ToString(GetConfigValue(config["passwordStrengthRegularExpression"], ""));
+			enablePasswordReset = Convert.ToBoolean(GetConfigValue(config["enablePasswordReset"], "true"));
+			enablePasswordRetrieval = Convert.ToBoolean(GetConfigValue(config["enablePasswordRetrieval"], "true"));
+			requiresQuestionAndAnswer = Convert.ToBoolean(GetConfigValue(config["requiresQuestionAndAnswer"], "false"));
+			requiresUniqueEmail = Convert.ToBoolean(GetConfigValue(config["requiresUniqueEmail"], "true"));
+			newPasswordLength = Convert.ToInt32(GetConfigValue(config["newPasswordLength"], "8"));
+			emailAsUserName = Convert.ToBoolean(GetConfigValue(config["emailAsUserName"], "false"));
+
+			var formatString = GetConfigValue(config["passwordFormat"], MembershipPasswordFormat.Hashed.ToString());
+			if (!Enum.TryParse<MembershipPasswordFormat>(formatString, out passwordFormat))
+				throw new ProviderException("Password format not supported.");
+
+			var cfg = WebConfigurationManager.OpenWebConfiguration(HostingEnvironment.ApplicationVirtualPath);
+			machineKey = (MachineKeySection)cfg.GetSection("system.web/machineKey");
+
+			if (machineKey.ValidationKey.Contains("AutoGenerate"))
+			if (PasswordFormat != MembershipPasswordFormat.Clear)
+				throw new ProviderException("Hashed or Encrypted passwords are not supported with auto-generated keys.");
+		}
+
+		string GetConfigValue(string configValue, string defaultValue)
+		{
+			return string.IsNullOrEmpty(configValue) ? defaultValue : configValue;
 		}
 
 		static string GenerateToken()
@@ -63,7 +122,8 @@ namespace Pablo.Gallery.Logic.Membership
 					CreateDate = date,
 					PasswordChangedDate = date,
 					UserName = userName,
-					Password = password,
+					Email = emailAsUserName ? userName : null,
+					Password = EncodePassword(password),
 					ConfirmationToken = token,
 					IsConfirmed = !requireConfirmation
 				};
@@ -72,6 +132,8 @@ namespace Pablo.Gallery.Logic.Membership
 					object val;
 					if (values.TryGetValue("Alias", out val) && val is string)
 						user.Alias = (string)val;
+					if (!emailAsUserName && values.TryGetValue("Email", out val) && val is string)
+						user.Email = (string)val;
 
 				}
 				db.Users.Add(user);
@@ -181,25 +243,22 @@ namespace Pablo.Gallery.Logic.Membership
 				var user = db.Users.FirstOrDefault(r => r.PasswordVerificationToken == token);
 				if (user == null)
 					return false;
-				user.Password = newPassword;
+				user.Password = EncodePassword(newPassword);
 				user.PasswordChangedDate = DateTime.UtcNow;
 				return true;
 			}
 		}
 
-		public override string ApplicationName
-		{
-			get; set; 
-		}
+		public override string ApplicationName { get; set; }
 
 		public override bool ChangePassword(string userName, string oldPassword, string newPassword)
 		{
 			using (var db = Database())
 			{
 				var user = db.Users.FirstOrDefault(r => r.UserName == userName);
-				if (user == null || oldPassword != user.Password)
+				if (user == null || !CheckPassword(oldPassword, user.Password))
 					return false;
-				user.Password = newPassword;
+				user.Password = EncodePassword(newPassword);
 				user.PasswordChangedDate = DateTime.UtcNow;
 				db.SaveChanges();
 				return true;
@@ -208,7 +267,17 @@ namespace Pablo.Gallery.Logic.Membership
 
 		public override bool ChangePasswordQuestionAndAnswer(string username, string password, string newPasswordQuestion, string newPasswordAnswer)
 		{
-			throw new NotImplementedException();
+			using (var db = Database())
+			{
+				var user = db.Users.FirstOrDefault(r => r.UserName == username);
+				if (user != null && CheckPassword(password, user.Password))
+				{
+					user.PasswordQuestion = newPasswordQuestion;
+					user.PasswordAnswer = EncodePassword(newPasswordAnswer);
+					return true;
+				}
+			}
+			return false;
 		}
 
 		public override MembershipUser CreateUser(string username, string password, string email, string passwordQuestion, string passwordAnswer, bool isApproved, object providerUserKey, out MembershipCreateStatus status)
@@ -224,7 +293,10 @@ namespace Pablo.Gallery.Logic.Membership
 						CreateDate = date,
 						PasswordChangedDate = date,
 						UserName = username,
-						Password = password,
+						Email = emailAsUserName ? username : null,
+						Password = EncodePassword(password),
+						PasswordQuestion = passwordQuestion,
+						PasswordAnswer = EncodePassword(passwordAnswer)
 					};
 					db.SaveChanges();
 					status = MembershipCreateStatus.Success;
@@ -255,12 +327,12 @@ namespace Pablo.Gallery.Logic.Membership
 
 		public override bool EnablePasswordReset
 		{
-			get { return true; }
+			get { return enablePasswordReset; }
 		}
 
 		public override bool EnablePasswordRetrieval
 		{
-			get { return true; }
+			get { return enablePasswordRetrieval; }
 		}
 
 		public override MembershipUserCollection FindUsersByEmail(string emailToMatch, int pageIndex, int pageSize, out int totalRecords)
@@ -397,47 +469,60 @@ namespace Pablo.Gallery.Logic.Membership
 
 		public override int MaxInvalidPasswordAttempts
 		{
-			get { return 5; }
+			get { return maxInvalidPasswordAttempts; }
 		}
 
 		public override int MinRequiredNonAlphanumericCharacters
 		{
-			get { return 0; }
+			get { return minRequiredNonAlphanumericCharacters; }
 		}
 
 		public override int MinRequiredPasswordLength
 		{
-			get { return 5; }
+			get { return minRequiredPasswordLength; }
 		}
 
 		public override int PasswordAttemptWindow
 		{
-			get { return 10; }
+			get { return passwordAttemptWindow; }
 		}
 
 		public override MembershipPasswordFormat PasswordFormat
 		{
-			get { return MembershipPasswordFormat.Hashed; }
+			get { return passwordFormat; }
 		}
 
 		public override string PasswordStrengthRegularExpression
 		{
-			get { return null; }
+			get { return passwordStrengthRegularExpression; }
 		}
 
 		public override bool RequiresQuestionAndAnswer
 		{
-			get { return false; }
+			get { return requiresQuestionAndAnswer; }
 		}
 
 		public override bool RequiresUniqueEmail
 		{
-			get { return true; }
+			get { return requiresUniqueEmail; }
 		}
 
 		public override string ResetPassword(string username, string answer)
 		{
-			throw new NotSupportedException();
+			using (var db = Database())
+			{
+
+				var user = db.Users.FirstOrDefault(r => r.UserName == username && r.IsConfirmed);
+				if (user == null)
+					throw new MembershipPasswordException("The supplied user name is not found.");
+				if (!CheckPassword(answer, user.PasswordAnswer))
+					throw new MembershipPasswordException("Incorrect password answer.");
+				string newPassword = System.Web.Security.Membership.GeneratePassword(newPasswordLength, MinRequiredNonAlphanumericCharacters);
+				user.LastLoginDate = DateTime.UtcNow;
+				user.Password = EncodePassword(newPassword);
+				db.SaveChanges();
+				return newPassword;
+			}
 		}
 
 		public override bool UnlockUser(string userName)
@@ -454,8 +539,8 @@ namespace Pablo.Gallery.Logic.Membership
 		{
 			using (var db = Database())
 			{
-				var user = db.Users.FirstOrDefault(r => r.UserName == username && r.Password == password && r.IsConfirmed);
-				if (user == null)
+				var user = db.Users.FirstOrDefault(r => r.UserName == username && r.IsConfirmed);
+				if (user == null || !CheckPassword(password, user.Password))
 					return false;
 				user.LastLoginDate = DateTime.UtcNow;
 				db.SaveChanges();
@@ -469,6 +554,75 @@ namespace Pablo.Gallery.Logic.Membership
 			{
 				return db.Users.Any(r => r.Id == userId);
 			}
+		}
+
+		string EncodePassword(string password)
+		{
+			string encodedPassword = password;
+
+			switch (PasswordFormat)
+			{
+				case MembershipPasswordFormat.Clear:
+					break;
+				case MembershipPasswordFormat.Encrypted:
+					encodedPassword = Convert.ToBase64String(EncryptPassword(Encoding.Unicode.GetBytes(password)));
+					break;
+				case MembershipPasswordFormat.Hashed:
+					HMACSHA1 hash = new HMACSHA1();
+					hash.Key = HexToByte(machineKey.ValidationKey);
+					encodedPassword = Convert.ToBase64String(hash.ComputeHash(Encoding.Unicode.GetBytes(password)));
+					break;
+				default:
+					throw new ProviderException("Unsupported password format.");
+			}
+
+			return encodedPassword;
+		}
+
+		string UnEncodePassword(string encodedPassword)
+		{
+			string password = encodedPassword;
+
+			switch (PasswordFormat)
+			{
+				case MembershipPasswordFormat.Clear:
+					break;
+				case MembershipPasswordFormat.Encrypted:
+					password = Encoding.Unicode.GetString(DecryptPassword(Convert.FromBase64String(password)));
+					break;
+				case MembershipPasswordFormat.Hashed:
+					throw new ProviderException("Cannot unencode a hashed password.");
+				default:
+					throw new ProviderException("Unsupported password format.");
+			}
+
+			return password;
+		}
+
+		byte[] HexToByte(string hexString)
+		{
+			var returnBytes = new byte[hexString.Length / 2];
+			for (int i = 0; i < returnBytes.Length; i++)
+				returnBytes[i] = Convert.ToByte(hexString.Substring(i*2, 2), 16);
+			return returnBytes;
+		}
+
+		bool CheckPassword(string password, string dbpassword)
+		{
+			string pass1 = password;
+			string pass2 = dbpassword;
+
+			switch (PasswordFormat)
+			{
+				case MembershipPasswordFormat.Encrypted:
+					pass2 = UnEncodePassword(dbpassword);
+					break;
+				case MembershipPasswordFormat.Hashed:
+					pass1 = EncodePassword(password);
+					break;
+			}
+
+			return pass1 == pass2;
 		}
 	}
 }
