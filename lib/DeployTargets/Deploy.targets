@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+	<UsingTask TaskName="TransformXml" AssemblyFile="DeployTasks.dll" />
+	<!-- used to deploy the app and transform the Web.config via xbuild 
+	
+		run using: xbuild /target:Deploy /p:DeployDir=<deployment directory> [/p:DeployTransform=<input config transform>]
+	-->
+	<Target Name="Deploy" Condition="'$(DeployDir)' != ''" DependsOnTargets="Build">
+		<PropertyGroup>
+			<DeployTransform Condition="'$(InputConfig)' == ''">Web.$(Configuration).config</DeployTransform>
+		</PropertyGroup>
+  	
+		<MakeDir Directories="$(DeployDir)\bin"/>
+		<Copy SourceFiles="@(IntermediateAssembly)" DestinationFolder="$(DeployDir)\bin" SkipUnchangedFiles="true"/>
+		<Copy
+			SourceFiles="$(IntermediateOutputPath)$(AssemblyName)$(TargetExt).mdb"
+			Condition="Exists('$(IntermediateOutputPath)$(AssemblyName)$(TargetExt).mdb')"
+			DestinationFolder="$(DeployDir)\bin"
+			SkipUnchangedFiles="true" />
+
+		<Copy
+			SourceFiles = "@(IntermediateSatelliteAssemblies)"
+			DestinationFiles = "@(IntermediateSatelliteAssemblies->'$(DeployDir)\bin\%(Culture)\$(AssemblyName).resources.dll')"
+			Condition = "'@(IntermediateSatelliteAssemblies)' != ''"
+			SkipUnchangedFiles="true" />
+
+		<!-- Copy the referenced assemblies -->
+		<Copy SourceFiles="@(ReferenceCopyLocalPaths)" DestinationFolder="$(DeployDir)\bin" SkipUnchangedFiles="true" />
+		<Copy SourceFiles="@(Content)" DestinationFolder="$(DeployDir)\%(Content.RelativeDir)" />
+		<TransformXml Source="Web.config" Transform="$(DeployTransform)" Destination="$(DeployDir)\Web.config" Condition="Exists('$(DeployTransform)')"/>
+	</Target>
+</Project>
