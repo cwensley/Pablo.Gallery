@@ -18,6 +18,10 @@ namespace Pablo.Gallery
 						"~/Scripts/jquery.unobtrusive*",
 						"~/Scripts/jquery.validate*"));
 
+			bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
+				"~/Scripts/bootstrap.js"
+			));
+
 			bundles.Add(new ScriptBundle("~/bundles/js").Include(
 				"~/Scripts/imagesloaded.pkgd.js"
 			));
@@ -28,6 +32,7 @@ namespace Pablo.Gallery
 						"~/Scripts/modernizr-*"));
 
 			var bundle = new StyleBundle("~/Content/css").Include(
+				"~/Content/bootstrap.css",
 				"~/Content/Site.less"
 			);
 			bundle.Transforms.Add(new LessTransform());

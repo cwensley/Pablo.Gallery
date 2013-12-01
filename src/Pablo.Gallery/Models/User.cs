@@ -23,6 +23,12 @@ namespace Pablo.Gallery.Models
 
 		//public virtual Artist Artist { get; set; }
 
+		[NotMapped]
+		public string DisplayName
+		{
+			get { return string.IsNullOrEmpty(Alias) ? UserName : Alias; }
+		}
+
 		[MaxLength(128)]
 		public string ConfirmationToken { get; set; }
 

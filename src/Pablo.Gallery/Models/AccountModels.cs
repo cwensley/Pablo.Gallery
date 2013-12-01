@@ -6,13 +6,16 @@ using System.Data.Entity;
 using System.Globalization;
 using System.Web.Mvc;
 using System.Web.Security;
+using DataAnnotationsExtensions;
 
 namespace Pablo.Gallery.Models
 {
 	public class RegisterExternalLoginModel
 	{
 		[Required]
-		[Display(Name = "User name")]
+		[Display(Name = "Email")]
+		[DataType(DataType.EmailAddress)]
+		[EmailAttribute]
 		public string UserName { get; set; }
 
 		public string ExternalLoginData { get; set; }
@@ -39,11 +42,13 @@ namespace Pablo.Gallery.Models
 
 	public class LoginModel
 	{
-		[Required]
-		[Display(Name = "User name")]
+		[Required(ErrorMessage = "Email address is required")]
+		[Display(Name = "Email")]
+		[DataType(DataType.EmailAddress, ErrorMessage = "Email address is not valid")]
+		[EmailAttribute]
 		public string UserName { get; set; }
 
-		[Required]
+		[Required(ErrorMessage = "Password is required")]
 		[DataType(DataType.Password)]
 		[Display(Name = "Password")]
 		public string Password { get; set; }
@@ -54,14 +59,16 @@ namespace Pablo.Gallery.Models
 
 	public class RegisterModel
 	{
-		[Required]
+		[Required(ErrorMessage = "Email address is required")]
 		[Display(Name = "Email")]
+		[DataType(DataType.EmailAddress, ErrorMessage = "Email address is not valid")]
+		[EmailAttribute]
 		public string UserName { get; set; }
 
 		[Display(Name = "Alias")]
 		public string Alias { get; set; }
 
-		[Required]
+		[Required(ErrorMessage = "Password is required")]
 		[StringLength(100, ErrorMessage = "The {0} must be at least {2} characters long.", MinimumLength = 6)]
 		[DataType(DataType.Password)]
 		[Display(Name = "Password")]

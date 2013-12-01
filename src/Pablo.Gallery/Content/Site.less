@@ -1,13 +1,13 @@
-﻿
+
 @import 'elements.less';
 
 @import 'Site.css';
 
 @retina:   ~"(-webkit-min-device-pixel-ratio: 2)", ~"(min-resolution: 192dpi)";
 
-@mobile:   ~"only screen and (max-device-width : 640px)";
+@mobile:   ~"only screen and (max-width : 640px)";
 
-@desktop:  ~"only screen and (min-device-width : 640px)";
+@desktop:  ~"only screen and (min-width : 640px)";
 
 .image-rendering-nearest() {
 	image-rendering: -moz-crisp-edges;         /* Firefox */
@@ -27,11 +27,16 @@
 
     	li.file {
     		
+    		@media @desktop {
+	    		margin: 6px;
+	    	}
+    		@media @mobile {
+	    		margin: 4px;
+	    	}
     		display: block;
     		float: left;
 	    	max-width: 160px;
 	    	height: 140px;
-	    	margin: 10px;
 			overflow: hidden;
 			background-color: black;
 			text-align: center;
