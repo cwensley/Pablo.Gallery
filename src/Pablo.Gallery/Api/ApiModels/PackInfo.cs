@@ -25,51 +25,43 @@ namespace Pablo.Gallery.Api.ApiModels
 		public PackSummary(Models.Pack pack)
 		{
 			this.pack = pack;
-			Name = pack.Name;
-			Date = pack.Date;
-			FileName = pack.FileName;
 		}
 
+		[DataMember(Name = "url")]
+		public string Url { get { return "pack/" + pack.Name; } }
+
+		[DataMember(Name = "previewUrl")]
+		public string PreviewUrl { get { return pack.PreviewUrl(maxWidth: 320).TrimStart('~'); } }
+
 		[DataMember(Name = "name")]
-		public string Name { get; set; }
+		public string Name { get { return pack.Name; } }
 
 		[DataMember(Name = "date")]
 		[JsonConverter(typeof(DateOnlyConverter))]
-		public DateTime? Date { get; set; }
+		public DateTime? Date { get { return pack.Date; } }
 
 		[DataMember(Name = "groups")]
 		public string[] Groups { get; set; }
 
 		[DataMember(Name = "fileName")]
-		public string FileName { get; set; }
+		public string FileName { get { return pack.FileName; } }
 
+		[DataMember(Name = "thumbnail")]
 		public FileSummary Thumbnail
 		{
 			get { return pack.Thumbnail != null ? new FileSummary(pack.Thumbnail) : null; }
-		}
-
-		public string Url(float? zoom = null, int? maxWidth = null)
-		{
-			if (Thumbnail != null)
-			{
-				return Thumbnail.Url(zoom, maxWidth);
-			}
-			else
-			{
-				return "~/Content/img/blank.png";
-			}
 		}
 	}
 
 	[DataContract(Name = "pack")]
 	public class PackDetail : PackSummary
 	{
-		public PackDetail(Models.Pack p, int start = 0, int count = int.MaxValue)
+		public PackDetail(Models.Pack p, int page = 0, int size = Global.DefaultPageSize)
 			: base(p)
 		{
 			Files = (from f in p.Files
 			        orderby f.Order
-				select new FileSummary(f)).Skip(start).Take(count);
+				select new FileSummary(f)).Skip(page * size).Take(size);
 		}
 
 		[DataMember(Name = "files")]

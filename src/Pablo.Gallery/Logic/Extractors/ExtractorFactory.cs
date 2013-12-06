@@ -15,16 +15,30 @@ namespace Pablo.Gallery.Logic.Extractors
 			new DotNetZipExtractor(),
 		};
 
+		static readonly Extractor fallbackExtractor = new FallbackExtractor(extractors);
+
+		public static IEnumerable<Extractor> Extractors { get { return extractors; } }
+
 		public static Extractor GetFileExtractor(string fileName)
 		{
 			var extension = Path.GetExtension(fileName).ToLowerInvariant();
+			if (fallbackExtractor.CanExtractFile(extension))
+				return fallbackExtractor;
+			return null;
+			/*
 			return extractors.FirstOrDefault(r => r.CanExtractFile(extension));
+			*/
 		}
 
 		public static Extractor GetInfoExtractor(string fileName)
 		{
-			var extension = Path.GetExtension(fileName);
+			var extension = Path.GetExtension(fileName).ToLowerInvariant();
+			if (fallbackExtractor.CanExtractInfo && fallbackExtractor.CanExtractFile(extension))
+				return fallbackExtractor;
+			return null;
+			/*
 			return extractors.FirstOrDefault(r => r.CanExtractInfo && r.CanExtractFile(extension));
+			*/
 		}
 
 	}

@@ -1,23 +1,33 @@
-﻿@model Pablo.Gallery.Api.ApiModels.YearDetail
+﻿@model int
 @{
-    ViewBag.Title = "Year " + @Model.Year;
+    ViewBag.Title = "Year " + @Model;
 }
 
-<h2>@Model.Year</h2>
+<h2>@Model</h2>
 
-<ul class="files">
-    @foreach (var pack in Model.Packs)
-    {
-        <li class="file">
-        	<a href="@Url.Action("Detail", "Pack", new { pack = pack.Name })">
-		        <span class="file-image">
-	       			<img src="@Url.Content(pack.Url(maxWidth: 320))" />
-				</span>
-		        <span class="file-name">@pack.Name</span>
-			</a>
-        </li>
-    }
-</ul>
+<ul id="result" class="files"></ul>
+<div id="loading">Loading...</div>
 
+@section Scripts {
+<script id="pack-template" type="text/x-jsrender">
+	<li class="file">
+		<a href="@Url.Content("~/"){{attr:url}}">
+			<span class="file-image">
+				<img src="{{attr:previewUrl}}" />
+			</span>
+			<span class="file-name">{{>name}}</span>
+		</a>
+	</li>
+</script>
 
-        
+<script>
+	$(function() {
+		$('#result').pageloader({
+			url: "@Url.RouteUrl("api", new { httproute="", Controller = "Year", id = Model })",
+			template: "#pack-template",
+			selector: function(data) { return data.packs; },
+			loading: "#loading",
+		});
+	});
+</script>
+}

@@ -45,13 +45,13 @@ namespace Pablo.Gallery.Logic.Extractors
 			process.Start();
 			var memstream = new MemoryStream();
 			process.Exited += (sender, e) => {
+				memstream.Position = 0;
 				if (process.ExitCode == 0)
 				{
-					memstream.Position = 0;
 					tcs.SetResult(memstream);
 				}
 				else
-					tcs.SetException(new Exception("could not extract file"));
+					tcs.SetException(new Exception(string.Format("could not extract file (exit code {0}) Details:\n{1}", process.ExitCode, new StreamReader(memstream).ReadToEnd())));
 				process.Dispose();
 			};
 			process.StandardOutput.BaseStream.CopyTo(memstream);

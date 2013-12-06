@@ -1,7 +1,7 @@
 using System.Configuration;
 using PabloDraw;
 
-namespace Pablo.Gallery.Logic
+namespace Pablo.Gallery
 {
 	public static class Global
 	{
@@ -10,6 +10,8 @@ namespace Pablo.Gallery.Logic
 			// using windows (system.drawing) works better in a server environment, albeit a wee slower on a mac
 			PabloEngine = new PabloEngine("win"); 
 		}
+
+		public const int DefaultPageSize = 100;
 
 		public static PabloEngine PabloEngine { get; private set; }
 

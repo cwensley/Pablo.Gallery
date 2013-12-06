@@ -5,11 +5,26 @@
 
 <h2>Years</h2>
 
-    <ul>
-    @foreach (var year in Model.Years)
-    {
-        <li>
-        @Html.ActionLink(year.Year.ToString(), "Detail", new { year = year.Year })
-        </li>
-    }
-</ul>
+<ul id="result"></ul>
+<div id="loading">Loading...</div>
+
+@section Scripts {
+<script id="year-template" type="text/x-jsrender">
+	<li class="file">
+		<a href="@Url.Content("~/"){{attr:url}}">
+			<span class="file-name">{{>year}} - {{>packs}} packs</span>
+		</a>
+	</li>
+</script>
+
+<script>
+	$(function() {
+		$('#result').pageloader({
+			url: "@Url.RouteUrl("api", new { httproute="", Controller = "year"})",
+			template: "#year-template",
+			loading: "#loading",
+			selector: function(data) { return data.years; },
+		});
+	});
+</script>
+}

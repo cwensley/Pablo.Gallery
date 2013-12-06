@@ -17,7 +17,7 @@
         <h2>An error occurred while processing your request.</h2>
 
     </hgroup>
-    @if (System.Web.HttpContext.Current.IsDebuggingEnabled)
+    @if (true || System.Web.HttpContext.Current.IsDebuggingEnabled)
     {
         <pre style="display: block; width: 100%; overflow-x: scroll">@Model.Exception</pre>
     }

@@ -1,52 +1,58 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - PabloDraw Gallery</title>
-    @Styles.Render("~/Content/css")
-    @Scripts.Render("~/bundles/modernizr")
-
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewBag.Title - PabloDraw Gallery</title>
+	@Styles.Render("~/Content/css")
 </head>
 <body>
 @{
-    var controllerName = ViewContext.Controller.GetType().Name;
-    var suffix = "Controller";
-    if (controllerName.EndsWith(suffix)) {
-    	controllerName = controllerName.Substring(0, controllerName.Length - suffix.Length);
-    }
-    var viewName = System.IO.Path.GetFileNameWithoutExtension(((RazorView)Html.ViewContext.View).ViewPath);
+	var controllerName = ViewContext.Controller.GetType().Name;
+	var suffix = "Controller";
+	if (controllerName.EndsWith(suffix)) {
+		controllerName = controllerName.Substring(0, controllerName.Length - suffix.Length);
+	}
+	var viewName = System.IO.Path.GetFileNameWithoutExtension(((RazorView)Html.ViewContext.View).ViewPath);
 	var pageClass = string.Format("page-{0}-{1}", controllerName, viewName).ToLowerInvariant();
-    }
-    <div class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                @Html.ActionLink("PabloDraw Gallery", "Index", "Year", null, new { @class = "navbar-brand" })
-            </div>
-            <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    @* <li>@Html.ActionLink("Packs", "Index", "Year")</li>*@
-                </ul>
-                @Html.Partial("_LoginPartial")
-            </div>
-        </div>
-    </div>
-    <div class="container body-content @pageClass">
-        @RenderBody()
-        <div style="clear:both"></div>
-        <hr />
-        <footer>
-            <p>&copy; @DateTime.Now.Year - Pablo Gallery</p>
-        </footer>
-    </div>
+	ViewBag.ShowNav = ViewBag.ShowNav ?? true;
+	}
+	@if (ViewBag.ShowNav) {
+	<div class="navbar navbar-inverse navbar-fixed-top">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
+				@Html.ActionLink("PabloDraw Gallery", "Index", "Year", null, new { @class = "navbar-brand" })
+			</div>
+			<div class="navbar-collapse collapse">
+				<ul class="nav navbar-nav">
+					@* <li>@Html.ActionLink("Packs", "Index", "Year")</li>*@
+					@if (User.IsInRole("admin")) { 
+						<li>@Html.ActionLink("Scanner", "Index", "Scanner")</li> 
+					}
+				</ul>
+				@Html.Partial("_LoginPartial")
+			</div>
+		</div>
+	</div>
+	}
+	<div class="container body-content @pageClass">
+		@RenderBody()
+		<div style="clear:both"></div>
+		@if (ViewBag.ShowNav) {
+		<hr />
+		<footer>
+			<p>&copy; @DateTime.Now.Year - Pablo Gallery</p>
+		</footer>
+		}
+	</div>
 
-    @Scripts.Render("~/bundles/jquery")
-    @Scripts.Render("~/bundles/bootstrap")
-    @RenderSection("scripts", required: false)
+	@Scripts.Render("~/bundles/js")
+	@Html.PageScripts()
+	@RenderSection("scripts", required: false)
 </body>
 </html>

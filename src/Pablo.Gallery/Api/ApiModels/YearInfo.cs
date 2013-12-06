@@ -18,6 +18,16 @@ namespace Pablo.Gallery.Api.ApiModels
 	{
 		[DataMember(Name = "packs")]
 		public int Packs { get; set; }
+
+		[DataMember(Name = "url")]
+		public string Url { get; set; }
+
+		public YearSummary(int year, int packs)
+		{
+			Year = year;
+			Url = "year/" + year;
+			Packs = packs;
+		}
 	}
 
 	[DataContract(Name = "year")]

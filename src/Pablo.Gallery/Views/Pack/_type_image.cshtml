@@ -1,0 +1,28 @@
+﻿@model Pablo.Gallery.Models.File
+@{
+	var imgClass = Model.UseNearestNeighbour ? "nearest" : "";
+}
+
+<img src="@Url.Content("~/Content/img/ajax-loader.gif")" />
+
+@using (Html.BeginScripts()) {
+<script type="text/javascript">
+	$(function() {
+		var img = $(".main-image img");
+		var width;
+		var height;
+		$(window).resize(function() {
+			img.toggleClass("@imgClass", img.width() == width);
+		});
+		img.imagesLoaded(function() {
+			width = img.width();
+			height = img.height();
+			img.addClass('sized');
+			img.toggleClass("@imgClass", img.width() == width);
+		});
+		img.attr("src", "@Url.Content(Model.Url())");
+
+	});
+
+</script>
+}

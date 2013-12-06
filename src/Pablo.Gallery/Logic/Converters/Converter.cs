@@ -12,15 +12,27 @@ namespace Pablo.Gallery.Logic.Converters
 
 		public string FileName { get; set; }
 
+		public string InputFormat { get; set; }
+
+		public string InputType { get; set; }
+
 		public string OutFileName { get; set; }
 
 		public int? Zoom { get; set; }
 
 		public int? MaxWidth { get; set; }
+
+		public bool? LegacyAspect  { get; set; }
+
+		public bool? Use9x { get; set; }
+
+		public bool? IceColor { get; set; }
 	}
 
 	public abstract class Converter
 	{
+		public abstract bool CanConvert(ConvertInfo info);
+
 		public abstract Task<Stream> Convert(ConvertInfo info);
 	}
 }

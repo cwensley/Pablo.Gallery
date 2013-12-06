@@ -6,6 +6,7 @@ using System.Web;
 using System.Web.Mvc;
 using System.IO;
 using System.Text;
+using Pablo.Gallery.Models;
 
 namespace Pablo.Gallery.Api.ApiModels
 {
@@ -19,103 +20,38 @@ namespace Pablo.Gallery.Api.ApiModels
 			this.file = file;
 		}
 
+		[DataMember(Name = "url")]
+		public string Url { get { return "pack/" + file.Path; } }
+
+		[DataMember(Name = "downloadUrl")]
+		public string DownloadUrl { get { return file.DownloadUrl().TrimStart('~'); } }
+
+		[DataMember(Name = "previewUrl")]
+		public string PreviewUrl { get { return file.PreviewUrl(maxWidth: 320).TrimStart('~'); } }
+
 		[DataMember(Name = "pack")]
 		public string Pack { get { return file.Pack.Name; } }
 
+		[DataMember(Name = "path")]
+		public string Path { get { return Logic.Scanner.NormalizedPath(System.IO.Path.GetDirectoryName(file.NativeFileName)); } }
+
 		[DataMember(Name = "fileName")]
-		public string FileName { get { return file.FileName; } }
+		public string FileName { get { return System.IO.Path.GetFileName(file.NativeFileName); } }
 
-		public string NativeFileName { get { return file.NativeFileName; } }
+		[DataMember(Name = "name")]
+		public string Name { get { return file.Name; } }
 
-		public PackSummary PackSummary { get { return new PackSummary(file.Pack); } }
+		[DataMember(Name = "format")]
+		public string Format { get { return file.Format; } }
 
-		public string Path
-		{
-			get { return HttpUtility.UrlPathEncode(Pack) + "/" + HttpUtility.UrlPathEncode(FileName).Replace("%5c", "\\").Replace("&amp;", "&"); }
-		}
+		[DataMember(Name = "type")]
+		public string Type { get { return file.Type; } }
 
-		public string PreferredFormat(float? zoom, float? maxWidth)
-		{
-			if (file.Type == "character" || file.Type == "rip")
-				return "png";
-			if (file.Type == "image")
-			{
-				if ((zoom == null || zoom >= 0.5f) && maxWidth == null)
-					return "raw";
-				//if (FileName.EndsWith(".gif", StringComparison.OrdinalIgnoreCase))
-				//	return "gif";
-				//if (FileName.EndsWith(".jpeg", StringComparison.OrdinalIgnoreCase) || FileName.EndsWith(".jpg", StringComparison.OrdinalIgnoreCase))
-				//	return "jpeg";
-				return "png";
-			}
-			return null;
+		[DataMember(Name = "displayUrl")]
+		public string DisplayUrl { get { return file.DisplayUrl().TrimStart('~'); } }
 
-		}
-
-		public string Url(float? zoom = null, int? maxWidth = null)
-		{
-			var format = PreferredFormat(zoom, maxWidth);
-			if (format != null)
-			{
-				var sb = new StringBuilder();
-				sb.AppendFormat("~/api/v0/pack/{0}?format={1}", Path, format);
-				if (zoom != null)
-					sb.AppendFormat("&zoom={0:0}", zoom * 100);
-				if (maxWidth != null)
-					sb.AppendFormat("&max-width={0}", maxWidth);
-				return sb.ToString();
-			}
-			else
-			{
-				var img = GetGenericImageUrl(System.IO.Path.GetExtension(NativeFileName));
-				return string.Format("~/Content/img/file-type/{0}.png", img);
-			}
-		}
-
-		string GetGenericImageUrl(string extension)
-		{
-			switch (extension.ToLowerInvariant())
-			{
-				case ".exe":
-				case ".com":
-				case ".dll":
-					return "general";
-				case ".arj":
-				case ".zip":
-				case ".rar":
-				case ".7z":
-					return "compressed";
-				case ".css":
-					return "css";
-				case ".s3m":
-				case ".mod":
-				case ".xm":
-				case ".it":
-				case ".669":
-				case ".mp3":
-					return "music";
-				case ".html":
-				case ".htm":
-					return "html";
-				case ".pcx":
-					return "image";
-				case ".fli":
-				case ".mpg":
-					return "movie";
-				default:
-					return "blank";
-			}
-		}
-
-		public string RawUrl(UrlHelper url)
-		{
-			return url.Content(string.Format("~/api/v0/pack/{0}/{1}?format=raw", file.Pack.Name, file.FileName));
-		}
-
-		public bool UseNearestNeighbour
-		{
-			get { return file.UseNearestNeighbour; }
-		}
+		[DataMember(Name = "displayType")]
+		public string DisplayType { get { return file.DisplayType(); } }
 	}
 
 	[DataContract(Name = "file")]

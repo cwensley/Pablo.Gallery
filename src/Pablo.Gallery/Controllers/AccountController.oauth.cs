@@ -58,7 +58,7 @@ namespace Pablo.Gallery.Controllers
 				return RedirectToAction("ExternalLoginFailure");
 			}
 
-			if (OAuthWebSecurity.Login(result.Provider, result.ProviderUserId, createPersistentCookie: false))
+			if (OAuthWebSecurity.Login(result.Provider, result.ProviderUserId, createPersistentCookie: true))
 			{
 				return RedirectToLocal(returnUrl);
 			}

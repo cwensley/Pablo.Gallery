@@ -1,14 +1,15 @@
-﻿
-<div>
-	<input type="button" id="button" value="Start Scanning" />
-
+<div style="margin: 5px 0;">
+	<input type="button" id="button" value="Start Scanning" class="btn btn-primary"/>
+	
 	<span class="button" id="progress" style="display:none;">
 		Running Process...
 		<img src= "@Url.Content("~/Content/img/ajax-loader.gif")" />
 	</span>
-	<pre id="msg" style="max-height: 50em; overflow-y:scroll;"></pre>
-
 </div>
+<div>
+	<pre id="msg" style="height: 40em; overflow-y:scroll;"></pre>
+</div>
+
 
 @section scripts {
 	<script type="text/javascript">
@@ -86,6 +87,11 @@
 	    $('#button').click(function () {
 	        startProcess();
 	    });
+
+	    if (@ViewBag.Started.ToString().ToLowerInvariant() == true)
+	    {
+	    	startProcess();
+	    }
 	});
 </script>
 }

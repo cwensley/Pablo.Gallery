@@ -21,6 +21,8 @@ namespace Pablo.Gallery.Logic.Extractors
 
 		public override bool CanExtractFile(string extension)
 		{
+			if (string.IsNullOrEmpty(exePath))
+				return false;
 			return extension == ".zip";
 		}
 

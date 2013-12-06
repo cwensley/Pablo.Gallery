@@ -1,24 +1,32 @@
-﻿@model Pablo.Gallery.Api.ApiModels.PackResult
-@{
+﻿@{
     ViewBag.Title = "Packs";
 }
 
 <h2>Packs</h2>
 
-<ul class="files">
-    @foreach (var pack in Model.Packs)
-    {
-        <li class="file">
-        	<a href="@Url.Action("Detail", "Pack", new { pack = pack.Name })">
-		        <span class="file-image">
-	       			<img src="@Url.Content(pack.Url(maxWidth: 320))" />
-				</span>
-		        <span class="file-name">@pack.Name</span>
-			</a>
-        </li>
-    }
-</ul>
+<ul id="result" class="files"></ul>
+<div id="loading">Loading...</div>
 
+@section Scripts {
+<script id="pack-template" type="text/x-jsrender">
+	<li class="file">
+		<a href="{{attr:PackUrl}}">
+			<span class="file-image">
+				<img src="{{attr:PreviewUrl}}" />
+			</span>
+			<span class="file-name">{{>PackName}}</span>
+		</a>
+	</li>
+</script>
 
-
-    
+<script>
+	$(function() {
+		$('#result').pageloader({
+			params: @Html.Raw(ViewBag.Params),
+			url: "@Url.Action("Detail")",
+			template: "#pack-template",
+			loading: "#loading",
+		});
+	});
+</script>
+}

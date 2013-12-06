@@ -6,10 +6,13 @@ using Newtonsoft.Json;
 
 namespace Pablo.Gallery.Controllers
 {
+	[Authorize(Roles = "admin")]
+	[HandleError(ExceptionType = typeof(UnauthorizedAccessException), View = "Pack")]
 	public class ScannerController : Controller
 	{
 		public ActionResult Index()
 		{
+			ViewBag.Started = process != null && !process.Done;
 			return View();
 		}
 

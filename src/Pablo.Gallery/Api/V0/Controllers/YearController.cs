@@ -14,35 +14,32 @@ namespace Pablo.Gallery.Api.V0.Controllers
 		readonly Models.GalleryContext db = new Models.GalleryContext();
 
 		[HttpGet]
-		public YearResult Index(int start = 0, int limit = 100)
+		public YearResult Index(int page = 0, int size = Global.DefaultPageSize)
 		{
 			var years = from p in db.Packs
 			            group p by new { Year = p.Date.Value.Year } into g
 						orderby g.Key.Year descending
-			            select new YearSummary
-			{
-				Year = g.Key.Year,
-				Packs = g.Count()
-			};
+			            select g;
+			var results = years.AsEnumerable().Skip(page * size).Take(size);
 			return new YearResult
 			{
-				Years = years.AsEnumerable().Skip(start).Take(limit)
+				Years = from y in results select new YearSummary(y.Key.Year, y.Count())
 			};
 		}
 
 		[HttpGet]
-		public YearDetail Index([FromUri(Name = "id")]int year, int start = 0, int limit = 100)
+		public YearDetail Index([FromUri(Name = "id")]int year, int page = 0, int size = Global.DefaultPageSize)
 		{
 			var packs = from p in db.Packs
 			            where p.Date.Value.Year == year
 			            orderby p.Name
 			            select p;
 
+			var results = packs.Skip(page * size).Take(size).AsEnumerable();
 			return new YearDetail
 			{
 				Year = year,
-				Packs = from p in packs.Skip(start).Take(limit).AsEnumerable()
-				        select new PackSummary(p)
+				Packs = from p in results select new PackSummary(p)
 			};
 		}
 

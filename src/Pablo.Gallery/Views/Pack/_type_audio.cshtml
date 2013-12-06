@@ -1,0 +1,29 @@
+﻿@model Pablo.Gallery.Models.File
+<audio id="player" autoplay="true" controls="controls">
+	<source src="@Url.Content(Model.Url(format: "mp3"))" type="audio/mpeg" />
+	<source src="@Url.Content(Model.Url(format: "ogg"))" type="audio/ogg" />
+	<object type="application/x-shockwave-flash" data="@Url.Content("~/Content/player_mp3_mini.swf")" width="200" height="20">
+	    <param name="movie" value="@Url.Content("~/Content/player_mp3_mini.swf")" />
+	    <param name="bgcolor" value="#000000" />
+	    <param name="FlashVars" value="mp3=@Url.Content(Model.Url())&amp;autoplay=1" />
+	</object>
+</audio>
+
+@using (Html.BeginScripts()) {
+
+	<script>
+		$(function() {
+
+		// running in colorbox preview
+		if (parent.$.colorbox)
+		{	
+			$("#player").bind('ended', function(){
+	    		// done playing, go to next file!
+	    		parent.$.colorbox.next();
+			});
+		}
+    });
+
+	</script>
+
+}

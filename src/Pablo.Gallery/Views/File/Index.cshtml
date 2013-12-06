@@ -1,21 +1,38 @@
-@model System.Collections.Generic.IEnumerable<Pablo.Gallery.Api.ApiModels.FileSummary>
 @{
     ViewBag.Title = "File Results";
 }
 
-<ul class="files">
-    @foreach (var file in Model)
-    {
-        <li class="file">
-        	<a href="@Url.Content(string.Format("~/pack/{0}", file.Path))">
-	        	<span class="file-image">
-	       			<img src="@Url.Content(file.Url(maxWidth: 320))" />
-				</span>
-		        <span class="pack-name">@file.Pack</span>
-		        <span class="file-name">@Path.GetFileName(file.NativeFileName)</span>
-			</a>
-        </li>
-    }
-</ul>
+<ul id="result" class="files"></ul>
+<div id="loading">Loading...</div>
 
-    
+@section Scripts {
+<script id="file-template" type="text/x-jsrender">
+	<li class="file">
+		<a href="@Url.Content("~/"){{attr:url}}" class="thumbs" data-img="{{attr:displayUrl}}" data-type="{{attr:displayType}}" data-download="{{attr:downloadUrl}}">
+	    	<span class="file-image">
+	   			<img src="{{attr:previewUrl}}" />
+			</span>
+	        <span class="pack-name">{{>pack}}</span>
+	        <span class="file-name">{{>fileName}}</span>
+		</a>
+	</li>
+</script>
+
+<script>
+	$(function() {
+		$('#result').pageloader({
+			params: @Html.Raw(ViewBag.Params),
+			url: "@Url.RouteUrl("api", new { httproute="", Controller = "file" })",
+			template: "#file-template",
+			loading: "#loading",
+		});
+		$('#result').gallery({
+			images: 'a.thumbs',
+			rel: 'thumbs',
+			loadMore: function(finished) {
+				$('#result').pageloader('load', finished);
+			}
+		});
+	});
+</script>
+}

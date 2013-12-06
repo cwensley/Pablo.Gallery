@@ -3,6 +3,11 @@ using System.Web.Http;
 using System.Web.Http.Dispatcher;
 using Pablo.Gallery.Logic;
 using Pablo.Gallery.Logic.Filters;
+using System.Net.Http;
+using System.Web.Http.WebHost;
+using System.Web.Routing;
+using System.Web;
+using System;
 
 namespace Pablo.Gallery
 {
@@ -13,9 +18,9 @@ namespace Pablo.Gallery
 			config.Filters.Add(new LoggingApiExceptionFilter());
 
 			config.Routes.MapHttpRoute(
-				name: "VersionedApi",
-				routeTemplate: "api/{version}/{controller}/{id}/{*id2}",
-				defaults: new { version = "v0", id = RouteParameter.Optional, id2 = RouteParameter.Optional }
+				name: "api",
+				routeTemplate: "api/{version}/{controller}/{id}/{*path}",
+				defaults: new { version = "v0", id = RouteParameter.Optional, path = RouteParameter.Optional }
 			);
 
 			config.Services.Replace(typeof(IHttpControllerSelector), new NamespaceHttpControllerSelector(config, 1));

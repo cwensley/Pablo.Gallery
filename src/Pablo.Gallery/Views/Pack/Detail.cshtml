@@ -1,22 +1,44 @@
-﻿@model Pablo.Gallery.Api.ApiModels.PackDetail
+﻿@model Pablo.Gallery.Models.Pack
 @{
     ViewBag.Title = "Pack " + Model.Name;
 }
+<h2>@Html.ActionLink(Model.Date.Value.Year.ToString(), "Detail", "Year", new { year = Model.Date.Value.Year }, null)\@Model.Name</h2>
+<p>
+	<a href="@Url.Content(Model.DownloadUrl())">Download Pack</a>
+</p>
 
-<h2>Pack @Model.Name</h2>
+<ul id="result" class="files"></ul>
+<div id="loading">Loading...</div>
 
-<ul class="files">
-    @foreach (var file in Model.Files)
-    {
-        <li class="file">
-        	<a href="@Url.Content(string.Format("~/pack/{0}", file.Path))">
-	        	<span class="file-image">
-	       			<img src="@Url.Content(file.Url(maxWidth: 320))" />
-				</span>
-		        <span class="file-name">@Path.GetFileName(file.NativeFileName)</span>
-			</a>
-        </li>
-    }
-</ul>
+@section Scripts {
+<script id="file-template" type="text/x-jsrender">
+	<li class="file">
+		<a href="@Url.Content("~/"){{attr:url}}" class="thumbs" data-img="{{attr:displayUrl}}" data-type="{{attr:displayType}}" data-download="{{attr:downloadUrl}}">
+			<span class="file-image">
+				<img src="{{attr:previewUrl}}" />
+			</span>
+		    <span class="file-name">{{>fileName}}</span>
+		</a>
+	</li>
+</script>
+<script>
+	$(function() {
+		$('#result').pageloader({
+			url: "@Url.RouteUrl("api", new { httproute="", Controller = "Pack", id = Model.Name })",
+			template: "#file-template",
+			loading: "#loading",
+			selector: function(data) { return data.files; }
+		});
+		$('#result').gallery({
+			images: 'a.thumbs',
+			rel: 'thumbs',
+			loadMore: function(finished) {
+				$('#result').pageloader('load', finished);
+			}
+		});
+	});
+</script>
+
+ }
 
     

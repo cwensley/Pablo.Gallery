@@ -1,45 +1,18 @@
-﻿@model Pablo.Gallery.Api.ApiModels.FileDetail
+﻿﻿﻿@model Pablo.Gallery.Models.File
 @{
-    ViewBag.Title = "File " + Model.Pack + "\\" + Model.FileName;
-	var imgClass = Model.UseNearestNeighbour ? "nearest" : "";
+    ViewBag.Title = "File " + Model.Pack.Name + "\\" + Model.FileName;
+	var show = Request["display"] != "true";
+	ViewBag.ShowNav = show;
 }
-
-<h2>@Model.Pack\@Model.FileName</h2>
-
-    @Html.ActionLink(Model.Pack, "Detail", new { pack = Model.Pack })
-
-    <p>
-    <a href="@Model.RawUrl(Url)">Download File</a>
-    </p>
+@if (show) {
+	<h2>@Html.ActionLink(Model.Pack.Name, "Detail", new { pack = Model.Pack.Name })\@Model.FileName</h2>
+	<p>
+		<a href="@Url.Content(Model.DownloadUrl())">Download File</a>
+	</p>
+}
+	else {
+	<h3>@Model.FileName</h3>
+	}
 <p class="main-image">
-	<img src="@Url.Content("~/Content/img/ajax-loader.gif")" />
+	@Html.Partial("_type_" + Model.OutputType, Model)
 </p>
-
-
-@section scripts {
-	@Scripts.Render("~/bundles/js")
-
-<script type="text/javascript">
-	$(function() {
-		var img = $(".main-image img");
-		var width;
-		var height;
-		$(window).resize(function() {
-			img.toggleClass("@imgClass", img.width() == width);
-		});
-		img.imagesLoaded(function() {
-			width = img.width();
-			height = img.height();
-			img.addClass('sized');
-			img.toggleClass("@imgClass", img.width() == width);
-		});
-		img.attr("src", "@Url.Content(Model.Url())");
-
-	});
-
-</script>
-}
-
-
-
-        

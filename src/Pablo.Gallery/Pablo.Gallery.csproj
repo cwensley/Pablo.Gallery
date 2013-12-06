@@ -126,9 +126,6 @@
     <Reference Include="System.Threading.Tasks">
       <HintPath>..\packages\Microsoft.Bcl.1.1.6\lib\net40\System.Threading.Tasks.dll</HintPath>
     </Reference>
-    <Reference Include="System.Net.Http">
-      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net40\System.Net.Http.dll</HintPath>
-    </Reference>
     <Reference Include="System.Net.Http.Primitives">
       <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net40\System.Net.Http.Primitives.dll</HintPath>
     </Reference>
@@ -193,6 +190,9 @@
     <Reference Include="DataAnnotationsExtensions">
       <HintPath>..\packages\DataAnnotationsExtensions.1.1.0.0\lib\NETFramework40\DataAnnotationsExtensions.dll</HintPath>
     </Reference>
+    <Reference Include="System.Net.Http">
+      <HintPath>..\packages\Microsoft.Net.Http.2.2.18\lib\net40\System.Net.Http.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\ApiModels\FileInfo.cs" />
@@ -245,6 +245,16 @@
     <Compile Include="App_Start\AuthConfig.cs" />
     <Compile Include="Controllers\AccountController.oauth.cs" />
     <Compile Include="Models\Role.cs" />
+    <Compile Include="Logic\Filters\AuthorizeAttribute.cs" />
+    <Compile Include="Logic\Converters\ImageConverter.cs" />
+    <Compile Include="Logic\Extractors\FallbackExtractor.cs" />
+    <Compile Include="Models\FileContent.cs" />
+    <Compile Include="Models\FileType.cs" />
+    <Compile Include="Models\FileFormat.cs" />
+    <Compile Include="Logic\Converters\ModConverter.cs" />
+    <Compile Include="Logic\HtmlHelpers.cs" />
+    <Compile Include="Logic\Converters\AudioConverter.cs" />
+    <Compile Include="Logic\Converters\MidiConverter.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\elements.less" />
@@ -280,16 +290,12 @@
     <Content Include="Views\Pack\File.cshtml" />
     <Content Include="Views\Year\Detail.cshtml" />
     <Content Include="Content\Site.less" />
-    <Content Include="Content\img\file-type\compressed.png" />
-    <Content Include="Content\img\file-type\music.png" />
     <Content Include="Content\img\file-type\word.png" />
     <Content Include="Content\img\file-type\css.png" />
     <Content Include="Content\img\file-type\image.png" />
     <Content Include="Content\img\file-type\text.png" />
-    <Content Include="Content\img\file-type\movie.png" />
     <Content Include="Content\img\file-type\html.png" />
     <Content Include="Content\img\file-type\folder.png" />
-    <Content Include="Content\img\file-type\general.png" />
     <Content Include="Content\img\file-type\blank.png" />
     <Content Include="Views\File\Index.cshtml" />
     <Content Include="Scripts\imagesloaded.pkgd.js" />
@@ -378,19 +384,67 @@
       <DependentUpon>Web.config</DependentUpon>
     </None>
     <Content Include="Content\bootstrap.css" />
-    <Content Include="Content\bootstrap-theme.css" />
-    <Content Include="Content\bootstrap-theme.min.css" />
-    <Content Include="Content\bootstrap.min.css" />
     <None Include="fonts\glyphicons-halflings-regular.eot" />
     <None Include="fonts\glyphicons-halflings-regular.svg" />
     <None Include="fonts\glyphicons-halflings-regular.ttf" />
     <None Include="fonts\glyphicons-halflings-regular.woff" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Content\font\8x16.svg" />
+    <Content Include="Content\font\8x16.ttf" />
+    <Content Include="Content\font\8x16.woff" />
+    <Content Include="Views\Shared\Unauthorized.cshtml" />
+    <Content Include="Scripts\colorbox\jquery.colorbox-min.js" />
+    <Content Include="Scripts\colorbox\jquery.colorbox.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-ar.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-bg.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-cs.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-da.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-de.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-es.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-et.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-fa.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-fi.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-fr.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-he.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-hr.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-hu.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-id.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-it.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-ja.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-kr.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-lv.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-nl.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-no.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-pl.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-pt-br.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-ro.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-ru.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-si.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-sk.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-sv.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-tr.js" />
+    <Content Include="Scripts\colorbox\i18n\jquery.colorbox-zh-CN.js" />
+    <Content Include="Content\colorbox.css" />
+    <Content Include="Scripts\Site.js" />
+    <Content Include="Content\img\ajax-loader-black.gif" />
+    <Content Include="Views\Pack\_type_audio.cshtml" />
+    <Content Include="Views\Pack\_type_image.cshtml" />
+    <Content Include="Content\player_mp3_mini.swf" />
+    <Content Include="Content\font\8x16.eot" />
+    <Content Include="Scripts\jsrender.min.js" />
+    <Content Include="Scripts\jsrender.js" />
+    <Content Include="Content\img\cb-controls.png" />
+    <Content Include="Content\img\file-type\audio.png" />
+    <Content Include="Content\img\file-type\archive.png" />
+    <Content Include="Content\img\file-type\binary.png" />
+    <Content Include="Content\img\file-type\application.png" />
+    <Content Include="Content\img\file-type\video.png" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
     <Folder Include="Views\Shared\EditorTemplates\" />
+    <Folder Include="Content\font\" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -439,8 +493,10 @@
           <XmlFormattingPolicy inheritsSet="null" scope="application/config+xml" />
           <TextStylePolicy inheritsSet="null" scope="application/xml" />
           <XmlFormattingPolicy inheritsSet="Mono" inheritsScope="application/xml" scope="application/xml" />
+          <TextStylePolicy inheritsSet="null" scope="image/svg+xml" />
+          <XmlFormattingPolicy inheritsSet="null" scope="image/svg+xml" />
         </Policies>
-        <XspParameters Port="8080" Address="127.0.0.1" SslMode="None" SslProtocol="Default" KeyType="None" CertFile="" KeyFile="" PasswordOptions="None" Password="" Verbose="True" />
+        <XspParameters Port="8080" Address="0.0.0.0" SslMode="None" SslProtocol="Default" KeyType="None" CertFile="" KeyFile="" PasswordOptions="None" Password="" Verbose="True" />
         <WebDeployTargets>
           <Target Name="">
             <FileCopier Handler="MonoDevelop.Deployment.LocalFileCopyHandler" TargetDirectory="/Volumes/Users/services/data/var/web/gallery.picoe.ca/" ctype="LocalFileCopyConfiguration" />

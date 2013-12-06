@@ -1,4 +1,4 @@
-﻿﻿using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -48,5 +48,23 @@ namespace Pablo.Gallery.Models
 
 		[InverseProperty("Pack")]
 		public virtual ICollection<File> Files { get; set; }
+
+
+		public string PreviewUrl(float? zoom = null, int? maxWidth = null)
+		{
+			if (Thumbnail != null)
+			{
+				return Thumbnail.PreviewUrl(zoom, maxWidth);
+			}
+			else
+			{
+				return "~/Content/img/blank.png";
+			}
+		}
+
+		public string DownloadUrl()
+		{
+			return string.Format("~/api/v0/pack/{0}?format=download", Name);
+		}
 	}
 }

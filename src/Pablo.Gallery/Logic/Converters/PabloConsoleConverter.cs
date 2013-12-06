@@ -17,6 +17,11 @@ namespace Pablo.Gallery.Logic.Converters
 			this.monoPath = monoPath ?? ConfigurationManager.AppSettings["MonoPath"];
 		}
 
+		public override bool CanConvert(ConvertInfo info)
+		{
+			return info.InputType == Models.FileType.Character.Name || info.InputType == Models.FileType.Image.Name || info.InputType == Models.FileType.Rip.Name;
+		}
+
 		public override Task ConvertFile(ConvertInfo info, string inFile, string outFile)
 		{
 			var tcs = new TaskCompletionSource<object>();
@@ -37,7 +42,8 @@ namespace Pablo.Gallery.Logic.Converters
 				args.Insert(0, convertExe + " ");
 				convertExe = monoPath;
 			}
-			Console.WriteLine("Executing: {0} {1}", convertExe, args);
+			// todo: logging
+			// Console.WriteLine("Executing: {0} {1}", convertExe, args);
 
 			var process = new Process
 			{

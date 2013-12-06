@@ -8,6 +8,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
+using System.Data.Entity.Core.Metadata.Edm;
 
 namespace Pablo.Gallery.Api.V0.Controllers
 {
@@ -16,23 +17,18 @@ namespace Pablo.Gallery.Api.V0.Controllers
 		readonly Models.GalleryContext db = new Models.GalleryContext();
 
 		[HttpGet]
-		public IEnumerable<FileSummary> Index(string format = null, string type = null, string query = null, int start = 0, int limit = 100)
+		public IEnumerable<FileSummary> Index(string format = null, string type = null, string query = null, int page = 0, int pageSize = Global.DefaultPageSize)
 		{
-			var files = from f in db.Files
-			            where
-			                (format == null || f.Format.ToLower() == format.ToLower())
-			                && (type == null || f.Type.ToLower() == type.ToLower())
-			                && (query == null || f.FileName.ToLower().Contains(query.ToLower()))
-			            orderby f.Pack.Date descending, f.FileName
-			            select f;
-			return from f in files.Skip(start).Take(limit).AsEnumerable()
-			       select new FileSummary(f);
+			var files = db.QueryFiles(format, type, query);
+			return from f in files.Skip(page * pageSize).Take(pageSize).AsEnumerable()
+			      select new FileSummary(f);
 		}
 
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
 				db.Dispose();
+			base.Dispose(disposing);
 		}
 	}
 }

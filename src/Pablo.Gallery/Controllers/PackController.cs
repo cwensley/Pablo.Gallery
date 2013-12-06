@@ -1,33 +1,39 @@
 ﻿using System.Web.Mvc;
+using System.Linq;
+using System.IO;
+using Newtonsoft.Json;
 
 namespace Pablo.Gallery.Controllers
 {
 	public class PackController : Controller
 	{
-		readonly Api.V0.Controllers.PackController api = new Api.V0.Controllers.PackController();
+		readonly Models.GalleryContext db = new Models.GalleryContext();
 
-		[OutputCache(Duration = 600)]
-		public ActionResult Index()
+		public ActionResult Index(string query = null)
 		{
-			return View(this.WrapWebApiException(() => api.Index()));
+			return View(query);
 		}
 
-		[OutputCache(Duration = 600)]
 		public ActionResult Detail(string pack)
 		{
-			return View(this.WrapWebApiException(() => api.Index(pack)));
+			var model = db.Packs.FirstOrDefault(p => p.Name == pack);
+			if (model == null)
+				return new HttpNotFoundResult();
+			return View(model);
 		}
 
-		[OutputCache(Duration = 600)]
 		public ActionResult File(string pack, string file)
 		{
-			return View(this.WrapWebApiException(() => api.Index(pack, file)));
+			var model = db.Files.FirstOrDefault(r => r.Pack.Name == pack && r.Name == file);
+			if (model == null)
+				return new HttpNotFoundResult();
+			return View(model);
 		}
 
 		protected override void Dispose(bool disposing)
 		{
 			if (disposing)
-				api.Dispose();
+				db.Dispose();
 			base.Dispose(disposing);
 		}
 	}

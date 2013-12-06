@@ -1,26 +1,19 @@
 ﻿using System.Web.Mvc;
+using Newtonsoft.Json;
+using System.Linq;
 
 namespace Pablo.Gallery.Controllers
 {
 	public class YearController : Controller
 	{
-		readonly Api.V0.Controllers.YearController api = new Api.V0.Controllers.YearController();
-
 		public ActionResult Detail(int year)
 		{
-			return View(this.WrapWebApiException(() => api.Index(year: year)));
+			return View(year);
 		}
 
 		public ActionResult Index()
 		{
-			return View(this.WrapWebApiException(() => api.Index()));
-		}
-
-		protected override void Dispose(bool disposing)
-		{
-			if (disposing)
-				api.Dispose();
-			base.Dispose(disposing);
+			return View();
 		}
 	}
 }
