@@ -1,0 +1,20 @@
+
+@retina:   ~"(-webkit-min-device-pixel-ratio: 2)", ~"(min-resolution: 192dpi)";
+
+@mobile:   ~"only screen and (max-width : 640px)";
+
+@desktop:  ~"only screen and (min-width : 640px)";
+
+.image-rendering-nearest() {
+	image-rendering: -moz-crisp-edges;		 /* Firefox */
+	image-rendering:   -o-crisp-edges;		 /* Opera */
+	image-rendering: -webkit-optimize-contrast;/* Webkit (non-standard naming) */
+	image-rendering: crisp-edges;
+	-ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */
+}
+
+.clearfix() {
+	zoom: 1;
+	&:before { content: ''; display: block; }
+	&:after { content: ''; display: table; clear: both; }
+}

@@ -6,10 +6,6 @@ $(document).ready(function () {
 	}).bind('cbox_closed', function () {
 		$('html').css({ overflow: 'auto' });
 	});
-
-	// so our font loads first, before the content of the page
-	//$('.body-content').show(); 
-
 });
 
 (function( $ ){
@@ -35,31 +31,32 @@ $(document).ready(function () {
 
 			var cboptions = {
 					rel: o.rel,
-		    		photo: function() {
-		    			return $(this).data('type') == 'image';
-		    		},
+					photo: function() {
+						return $(this).data('type') == 'image';
+					},
 					iframe: function() {
-		    			return $(this).data('type') != 'image';
+						return $(this).data('type') != 'image';
 					},
 					fixed: true,
-		    		reposition: false,
+					reposition: false,
+					loop: false,
 					height: function() { return $(window).height(); },
-		    		maxWidth: function() { return $(window).width(); },
+					maxWidth: function() { return $(window).width(); },
 					scalePhotos: false,
 					width: function() { return $(window).width() > 640 ? $(window).width() * 0.8 : $(window).width(); },
-					initialHeight: 480, 
-		    		initialWidth: 640,
-		    		href: function() { return $(this).data('img'); },
-		    		title: function() {
-					  var url = $(this).attr('href');
-					  var ret = '<a href="' + url + '" target="_blank">Open In New Window</a>';
-					  url = $(this).data('download');
-					  ret += '&nbsp;<a href="' + url + '">Download</a>';
-					  var name = $(this).find('.file-name').html();
-					  ret += '&nbsp;<span class="cb-name">' + name + '</span>';
-					  if (o.title)
-					  	ret += o.title($(this));
-					  return ret;
+					initialHeight: Math.min(480, $(window).width()), 
+					initialWidth: Math.min(640, $(window).height()),
+					href: function() { return $(this).data('img'); },
+					title: function() {
+						var url = $(this).attr('href');
+						var ret = '<a href="' + url + '" target="_blank">Open In New Window</a>';
+						url = $(this).data('download');
+						ret += ' <a href="' + url + '">Download</a>';
+						var name = $(this).find('.file-name').html();
+						ret += ' <span class="cb-name">' + name + '</span>';
+						if (o.title)
+							ret += o.title($(this));
+						return ret;
 					},
 					onComplete: function() {
 						if (o.loadMore)
@@ -82,25 +79,25 @@ $(document).ready(function () {
 				$(o.images).colorbox($.extend({ open: true }, cboptions));
 			});
 			return this;
-        },
-    };
+		},
+	};
 
-    $.fn.gallery = function(methodOrOptions) {
-        if ( methods[methodOrOptions] ) {
-            return methods[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-        } else if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
-            // Default to "init"
-            return methods.init.apply( this, arguments );
-        } else {
-            $.error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.gallery' );
-        }    
-    };
+	$.fn.gallery = function(methodOrOptions) {
+		if ( methods[methodOrOptions] ) {
+			return methods[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+		} else if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
+			// Default to "init"
+			return methods.init.apply( this, arguments );
+		} else {
+			$.error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.gallery' );
+		}	
+	};
 
 })( jQuery );
 
 (function( $ ){
 
-    var defaults = {
+	var defaults = {
 		type: "get",
 		template: null,
 		url: null,
@@ -152,8 +149,8 @@ $(document).ready(function () {
 		};
 
 	var methods = {
-        init : function(options) {
-      
+		init : function(options) {
+	  
 			o = $.extend(defaults, options);
 			o.result = $(this);
 			o.finished = false;
@@ -183,15 +180,15 @@ $(document).ready(function () {
 		}
 	};
 
-    $.fn.pageloader = function(methodOrOptions) {
-        if ( methods[methodOrOptions] ) {
-            return methods[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
-        } else if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
-            // Default to "init"
-            return methods.init.apply( this, arguments );
-        } else {
-            $.error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.gallery' );
-        }    
-    };
+	$.fn.pageloader = function(methodOrOptions) {
+		if ( methods[methodOrOptions] ) {
+			return methods[ methodOrOptions ].apply( this, Array.prototype.slice.call( arguments, 1 ));
+		} else if ( typeof methodOrOptions === 'object' || ! methodOrOptions ) {
+			// Default to "init"
+			return methods.init.apply( this, arguments );
+		} else {
+			$.error( 'Method ' +  methodOrOptions + ' does not exist on jQuery.gallery' );
+		}	
+	};
 
 })( jQuery );

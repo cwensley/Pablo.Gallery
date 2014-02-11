@@ -1,6 +1,8 @@
 
 @import 'elements.less';
 
+@import 'Common.less';
+
 @import 'Site.css';
 
 @retina:   ~"(-webkit-min-device-pixel-ratio: 2)", ~"(min-resolution: 192dpi)";
@@ -21,20 +23,6 @@
 	word-wrap:break-word;
 }
 
-.image-rendering-nearest() {
-	image-rendering: -moz-crisp-edges;		 /* Firefox */
-	image-rendering:   -o-crisp-edges;		 /* Opera */
-	image-rendering: -webkit-optimize-contrast;/* Webkit (non-standard naming) */
-	image-rendering: crisp-edges;
-	-ms-interpolation-mode: nearest-neighbor;  /* IE (non-standard property) */
-}
-
-.clearfix() {
-	zoom: 1;
-	&:before { content: ''; display: block; }
-	&:after { content: ''; display: table; clear: both; }
-}
-	
 .page-pack-detail, .page-year-detail, .page-file-index, .page-pack-index
 {
 	.files {
@@ -59,9 +47,9 @@
 			float: left;
 			height: 140px;
 			overflow: hidden;
-			background-color: black;
 			text-align: center;
 			position: relative;
+			background-color: black;
 			.rounded(4px);
 
 			a {
@@ -95,13 +83,14 @@
 			}
 		}
 
-		.file:hover {
+		li.file:hover {
 			.box-shadow(0px 0px 10px black);
 			.transition();
+
 			a {
 				color: white;
 			}
-			.file-name
+			.name, .file-name
 			{
 				background-color: #333;
 			}
@@ -114,6 +103,9 @@
 {
 	.files {
 		li.file {
+			.name {
+				display: block;
+			}
 			.pack-name {
 				display: block;
 				font-size: 10px;
@@ -146,4 +138,23 @@
 			}
 		}
 	}
+}
+
+a.btn-default {
+	background-color: lightgrey;
+}
+
+.page-year-index {
+
+	ul.years {
+		.clearfix();
+		list-style-type: none;
+
+		li.year {
+			display: block;
+			float: left;
+			margin: 5px;
+		}
+	}
+
 }

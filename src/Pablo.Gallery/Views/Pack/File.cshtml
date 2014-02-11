@@ -1,4 +1,4 @@
-﻿﻿﻿@model Pablo.Gallery.Models.File
+﻿﻿@model Pablo.Gallery.Models.File
 @{
     ViewBag.Title = "File " + Model.Pack.Name + "\\" + Model.FileName;
 	var show = Request["display"] != "true";
@@ -10,9 +10,9 @@
 		<a href="@Url.Content(Model.DownloadUrl())">Download File</a>
 	</p>
 }
-	else {
+else {
 	<h3>@Model.FileName</h3>
-	}
+}
 <p class="main-image">
 	@Html.Partial("_type_" + Model.OutputType, Model)
 </p>

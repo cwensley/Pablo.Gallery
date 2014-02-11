@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using Pablo.Gallery.Logic.Converters;
 using Pablo.Gallery.Logic.Extractors;
 using Pablo.Gallery.Models;
+using Pablo.Gallery.Logic.Filters;
+using Pablo.Gallery.Logic.Selectors;
 
 namespace Pablo.Gallery.Api.V0.Controllers
 {
@@ -57,7 +59,7 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			return response;
 		}
 
-		[HttpGet]
+		[HttpGet, EnableCors]
 		public PackDetail Index([FromUri(Name = "id")]string packName, int page = 0, int size = Global.DefaultPageSize)
 		{
 			var pack = db.Packs.FirstOrDefault(p => p.Name == packName);
@@ -89,7 +91,7 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			}
 		}
 
-		[HttpGet, HttpPost]
+		[HttpGet, HttpPost, EnableCors]
 		public FileDetail Index([FromUri(Name = "id")]string pack, [FromUri(Name = "path")] string name)
 		{
 			var file = db.Files.FirstOrDefault(r => r.Pack.Name == pack && r.Name == name);
@@ -145,6 +147,8 @@ namespace Pablo.Gallery.Api.V0.Controllers
 
 			var packArchiveFileName = Path.Combine(Global.SixteenColorsArchiveLocation, file.Pack.NativeFileName);
 			var outFile = file.NativeFileName;
+
+			// TODO: Move most of this to the converters and file type, including per-converter options
 
 			HttpContent content;
 			if (download || (file.Type == FileType.Audio.Name && Path.GetExtension(file.NativeFileName).TrimStart('.').Equals(format, StringComparison.OrdinalIgnoreCase)))

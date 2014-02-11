@@ -27,6 +27,7 @@ namespace Pablo.Gallery
 			FilterConfig.RegisterGlobalFilters(GlobalFilters.Filters);
 			RouteConfig.RegisterRoutes(RouteTable.Routes);
 			BundleConfig.RegisterBundles(BundleTable.Bundles);
+			BundleConfig.RegisterExternalBundles(BundleTable.Bundles);
 		}
 
 		protected void Application_Error(object sender, EventArgs e)

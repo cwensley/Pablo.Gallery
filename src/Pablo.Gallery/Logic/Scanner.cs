@@ -72,12 +72,17 @@ namespace Pablo.Gallery.Logic
 							{
 								pack = new Pack
 								{
-									Name = Path.GetFileNameWithoutExtension(packFileEntry),
+									Name = CanonicalName(Path.GetFileNameWithoutExtension(packFileEntry)),
 									FileName = packShortFile,
 									Date = date
 								};
 								db.Packs.Add(pack);
 								db.SaveChanges();
+							}
+							else
+							{
+								// fixup existing data
+								pack.Name = CanonicalName(pack.Name);
 							}
 							try
 							{

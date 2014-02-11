@@ -1,0 +1,60 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>PabloDraw Gallery sample</title>
+		<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
+		<script src="//cdn.jsdelivr.net/jsrender/1.0pre35/jsrender.min.js"></script>
+		<script src="//cdn.jsdelivr.net/colorbox/1.4.4/jquery.colorbox-min.js"></script>
+		<link href="//cdnjs.cloudflare.com/ajax/libs/jquery.colorbox/1.4.3/example1/colorbox.min.css" rel="stylesheet" />
+		<script src="http://gallery.picoe.ca/external/js"></script> <!-- requires jquery, jsrender -->
+	</head>
+	<body>
+
+		<div id="holder"></div>
+		<span id="loading">Loading...</span>
+
+
+		<div>
+		<script id="template" type="application/x-jsrender">
+<ul class="pablodraw-gallery">
+{{for files}}
+	<li class="pablodraw-gallery-file">
+		<a href="{{attr:~root.baseUrl}}{{attr:displayUrl}}" data-type="{{attr:displayType}}" data-url="{{attr:~root.baseUrl}}{{attr:url}}">
+			<span class="pablodraw-gallery-image">
+				<img src="{{attr:~root.baseUrl}}{{attr:previewUrl}}">
+			</span>
+		    <span class="pablodraw-gallery-file-name">{{>fileName}}</span>
+		</a>
+	</li>
+{{/for}}
+</ul>
+		</script>
+		<script>
+			$(function() {
+				$("#holder").pablogallery({ 
+					pack: 'blocktronics_acid_trip',
+					colorboxSelector: 'a[data-type=image]', // show only images when navigating colorbox
+					// baseUrl: 'http://gallery.picoe.ca' // base url for gallery
+					loadingElement: '#loading', // hides this element when loaded
+					// error: function() { },
+					// template: '#template'  // default to standard template
+					// includeCss: false // default: true
+					/*loaded: function() {
+						// use colorbox
+						$("#holder a").colorbox({
+							rel: 'pack-image',
+							photo: function() { return $(this).data('type') == 'image'; },
+							iframe: function() { return $(this).data('type') != 'image'; },
+						});
+					},*/
+					/*success: function(data) {
+						var template = $.templates('#template');
+						$('#holder').append(template.render(data));
+					}*/
+				});
+			});
+
+		</script>
+		</div>
+	</body>
+</html>

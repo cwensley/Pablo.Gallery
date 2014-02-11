@@ -1,0 +1,81 @@
+
+@import 'elements.less';
+
+@import 'Common.less';
+
+@retina:   ~"(-webkit-min-device-pixel-ratio: 2)", ~"(min-resolution: 192dpi)";
+
+@mobile:   ~"only screen and (max-width : 640px)";
+
+@desktop:  ~"only screen and (min-width : 640px)";
+
+.pablodraw-gallery
+{
+	.clearfix();
+
+	@media @desktop {
+		margin: 10px;
+	}
+	padding: 0;
+
+	li.pablodraw-gallery-file {
+		
+		@media @desktop {
+			margin: 6px;
+			width: 160px;
+		}
+		@media @mobile {
+			margin: 2%;
+			width: 46%;
+		}
+		display: block;
+		float: left;
+		height: 140px;
+		overflow: hidden;
+		background-color: black;
+		text-align: center;
+		position: relative;
+		.rounded(4px);
+
+		a {
+			text-decoration: none;
+			color: gray;
+		}
+
+		.pablodraw-gallery-image
+		{
+			height: 110px;
+			display: block;
+			overflow-y: visible;
+			line-height: 110px;
+
+			img {
+				max-width: 100%;
+			}
+		}
+
+		.pablodraw-gallery-file-name
+		{
+			font-size: 12px;
+			display: inline-block;
+			height: 30px;
+			padding: 6px 0px;
+			white-space: nowrap;
+			width: 100%;
+			background-color: black;
+			background-color: rgba(0,0,0,0.8);
+		}
+	}
+
+	.pablodraw-gallery-file:hover {
+		.box-shadow(0px 0px 10px black);
+		.transition();
+		a {
+			color: white;
+		}
+		.pablodraw-gallery-file-name
+		{
+			background-color: #333;
+		}
+	}
+}

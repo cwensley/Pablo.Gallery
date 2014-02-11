@@ -57,5 +57,30 @@ namespace Pablo.Gallery
 				"~/Content/themes/base/jquery.ui.theme.css"
 			));
 		}
+
+		public static void RegisterExternalBundles(BundleCollection bundles)
+		{
+			// bundles used for external viewer
+
+			bundles.Add(new ScriptBundle("~/external/js-full").Include(
+				"~/Scripts/jquery-{version}.js",
+				"~/Scripts/colorbox/jquery.colorbox.js",
+				"~/Scripts/jsrender.js",
+				"~/Scripts/External.js"
+			));
+
+			bundles.Add(new ScriptBundle("~/external/js").Include(
+				"~/Scripts/External.js"
+			));
+
+			var bundle = new StyleBundle("~/external/css").Include(
+				"~/Content/External.less"
+			);
+			bundle.Transforms.Clear();
+			bundle.Transforms.Add(new LessTransform());
+			bundle.Transforms.Add(new CssMinify());
+			bundles.Add(bundle);
+
+		}
 	}
 }

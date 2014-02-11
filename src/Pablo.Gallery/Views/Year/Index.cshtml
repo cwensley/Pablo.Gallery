@@ -5,14 +5,14 @@
 
 <h2>Years</h2>
 
-<ul id="result"></ul>
+<ul id="result" class="years"></ul>
 <div id="loading">Loading...</div>
 
 @section Scripts {
 <script id="year-template" type="text/x-jsrender">
-	<li class="file">
-		<a href="@Url.Content("~/"){{attr:url}}">
-			<span class="file-name">{{>year}} - {{>packs}} packs</span>
+	<li class="year">
+		<a href="@Url.Content("~/"){{attr:url}}" title="{{attr:year}} - {{attr:packs}} packs" class="btn btn-default">
+			<span class="file-name">{{>year}}</span>
 		</a>
 	</li>
 </script>

@@ -6,6 +6,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Web;
 using System.Web.Http;
+using Pablo.Gallery.Logic.Filters;
 
 namespace Pablo.Gallery.Api.V0.Controllers
 {
@@ -13,7 +14,7 @@ namespace Pablo.Gallery.Api.V0.Controllers
 	{
 		readonly Models.GalleryContext db = new Models.GalleryContext();
 
-		[HttpGet]
+		[HttpGet, EnableCors]
 		public YearResult Index(int page = 0, int size = Global.DefaultPageSize)
 		{
 			var years = from p in db.Packs
@@ -27,7 +28,7 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			};
 		}
 
-		[HttpGet]
+		[HttpGet, EnableCors]
 		public YearDetail Index([FromUri(Name = "id")]int year, int page = 0, int size = Global.DefaultPageSize)
 		{
 			var packs = from p in db.Packs
