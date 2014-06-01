@@ -71,7 +71,7 @@
 				success: function (data) {
 					if (data != null) {
 						o.params.Page++;
-						data = $.extend({ }, data, { baseUrl: o.url });
+						data = $.extend({ }, data, { baseUrl: o.baseUrl });
 						o.success(data);
 					}
 					else
