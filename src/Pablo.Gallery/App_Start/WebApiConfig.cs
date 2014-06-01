@@ -17,6 +17,14 @@ namespace Pablo.Gallery
 
 			config.Routes.MapHttpRoute(
 				name: "api",
+				routeTemplate: "api/{version}/{controller}/{id}",
+				defaults: new { version = "v0", id = RouteParameter.Optional }
+			);
+
+			// need this separate as Url.RouteUrl does not work with a wildcard in the route
+			// this is used to allow files in subfolders of a pack to be retrieved.
+			config.Routes.MapHttpRoute(
+				name: "apipath",
 				routeTemplate: "api/{version}/{controller}/{id}/{*path}",
 				defaults: new { version = "v0", id = RouteParameter.Optional, path = RouteParameter.Optional }
 			);
