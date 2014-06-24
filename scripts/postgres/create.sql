@@ -15,7 +15,8 @@
  Date: 11/28/2013 17:55:17 PM
 */
 
-CREATE SCHEMA IF NOT EXISTS "gallery"
+DROP SCHEMA IF EXISTS "gallery" CASCADE;
+CREATE SCHEMA "gallery";
 SET SCHEMA 'gallery';
 
 -- ----------------------------
