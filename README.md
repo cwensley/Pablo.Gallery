@@ -10,13 +10,12 @@ Prerequisites
 ### OS X and Linux
 
 - [Mono 3.2.x](http://www.go-mono.com/mono-downloads/) or higher
-- [Xamarin Studio / MonoDevelop 4.2](http://monodevelop.com/Download) (for development)
-- [Nuget add-in](https://github.com/mrward/monodevelop-nuget-addin) for Xamarin Studio / MonoDevelop
-- PostgreSQL
+- [Xamarin Studio 5.x](http://monodevelop.com/Download) or higher for development
+- PostgreSQL 9.2 or higher
 
 #### Ubuntu
 
-In ubuntu 12.04 or 13.x, add the following ppa to your sources:
+In ubuntu 12.04 or 13.x, add the following ppa to your sources (ubuntu 14.04 you do not need this):
 
 	ppa:v-kukol/mono-testing
 	
@@ -37,15 +36,11 @@ You can then run `xsp4` in the web directory to start the application for testin
 Database Setup
 --------------
 
-First, you must create a database. Follow the corresponding section for the database you'd like to use.  Then, update the &lt;connectionStrings&gt; section to have a "Gallery" connection string that points to your database.
+Create a database in either PostgreSQL or MSSQL then update the ```<connectionStrings>``` section in ```Web.config``` to have a "Gallery" connection string that points to your database.
 
-### PostgreSQL
+### PostgreSQL / MS SQL Server
 
-For PostgreSQL, create a new user and database.  Create a schema called 'gallery'. Run the script located at `scripts/gallery-postgresql.sql` on that schema.
-
-### SQL Server / Express
-
-To create a SQL Server database, run the `Update-Database` command from the package manager console.
+You can create the database by using entity framework migrations.  In Visual Studio, you can run ```Update-Database``` from the package manager console.  If you are on linux/osx, you can run the ```scripts/update-database.sh``` script.
 
 ### MySQL
 
