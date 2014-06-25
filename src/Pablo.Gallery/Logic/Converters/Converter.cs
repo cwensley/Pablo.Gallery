@@ -1,6 +1,8 @@
 ﻿using System;
 using System.IO;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Collections.Specialized;
 
 namespace Pablo.Gallery.Logic.Converters
 {
@@ -18,15 +20,13 @@ namespace Pablo.Gallery.Logic.Converters
 
 		public string OutFileName { get; set; }
 
-		public int? Zoom { get; set; }
+		public NameValueCollection Properties { get; set; }
 
-		public int? MaxWidth { get; set; }
-
-		public bool? LegacyAspect  { get; set; }
-
-		public bool? Use9x { get; set; }
-
-		public bool? IceColor { get; set; }
+		public T GetProperty<T>(string key)
+		{
+			var val = Properties[key];
+			return string.IsNullOrEmpty(val) ? default(T) : (T)Convert.ChangeType(val, Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T));
+		}
 	}
 
 	public abstract class Converter
@@ -34,5 +34,9 @@ namespace Pablo.Gallery.Logic.Converters
 		public abstract bool CanConvert(ConvertInfo info);
 
 		public abstract Task<Stream> Convert(ConvertInfo info);
+
+		public virtual void Prepare(ConvertInfo info)
+		{
+		}
 	}
 }

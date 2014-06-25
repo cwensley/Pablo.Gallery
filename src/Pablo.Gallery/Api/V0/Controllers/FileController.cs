@@ -20,8 +20,8 @@ namespace Pablo.Gallery.Api.V0.Controllers
 		public IEnumerable<FileSummary> Index(string format = null, string type = null, string query = null, int page = 0, int pageSize = Global.DefaultPageSize)
 		{
 			var files = db.QueryFiles(format, type, query);
-			return from f in files.Skip(page * pageSize).Take(pageSize).AsEnumerable()
-			      select new FileSummary(f);
+			return (from f in files.Skip(page * pageSize).Take(pageSize).AsEnumerable()
+				select new FileSummary(f)).ToArray();
 		}
 
 		protected override void Dispose(bool disposing)

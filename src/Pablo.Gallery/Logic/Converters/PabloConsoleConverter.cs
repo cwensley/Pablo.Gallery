@@ -19,7 +19,26 @@ namespace Pablo.Gallery.Logic.Converters
 
 		public override bool CanConvert(ConvertInfo info)
 		{
-			return info.InputType == Models.FileType.Character.Name || info.InputType == Models.FileType.Image.Name || info.InputType == Models.FileType.Rip.Name;
+			return !string.IsNullOrEmpty(monoPath) &&
+			(
+			    info.InputType == Models.FileType.Character.Name
+			    || info.InputType == Models.FileType.Image.Name
+			    || info.InputType == Models.FileType.Rip.Name
+			);
+		}
+
+		public override void Prepare(ConvertInfo info)
+		{
+			base.Prepare(info);
+
+			var outFile = Path.GetFileNameWithoutExtension(info.OutFileName);
+			var zoom = info.GetProperty<int?>("zoom");
+			if (zoom != null)
+				outFile += ".z" + zoom.Value;
+			var maxWidth = info.GetProperty<int?>("max-width");
+			if (maxWidth != null)
+				outFile += ".x" + maxWidth.Value;
+			info.OutFileName = outFile + Path.GetExtension(info.OutFileName);
 		}
 
 		public override Task ConvertFile(ConvertInfo info, string inFile, string outFile)
@@ -30,10 +49,14 @@ namespace Pablo.Gallery.Logic.Converters
 			convertExe = Path.Combine(appPath, convertExe);
 			var args = new StringBuilder();
 			args.AppendFormat(" --convert \"{0}\" --out \"{1}\"", inFile, outFile);
-			if (info.Zoom != null)
-				args.AppendFormat(" --zoom {0:0.00}", info.Zoom.Value / 100f);
-			if (info.MaxWidth != null)
-				args.AppendFormat(" --max-width {0}", info.MaxWidth.Value);
+
+
+			var zoom = info.GetProperty<int?>("zoom");
+			if (zoom != null)
+				args.AppendFormat(" --zoom {0:0.00}", zoom.Value / 100f);
+			var maxWidth = info.GetProperty<int?>("max-width");
+			if (maxWidth != null)
+				args.AppendFormat(" --max-width {0}", maxWidth.Value);
 			args.Append(" --platform win");
 
 			if (!string.IsNullOrEmpty(monoPath))

@@ -6,6 +6,7 @@ using System.Web;
 using System.Text;
 using System.Configuration;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Pablo.Gallery.Logic.Converters
 {
@@ -25,9 +26,12 @@ namespace Pablo.Gallery.Logic.Converters
 		{
 			if (string.IsNullOrEmpty(ffmpegPath))
 				return false;
+			var inExt = Path.GetExtension(info.FileName).ToLowerInvariant();
+			var outExt = Path.GetExtension(info.OutFileName).ToLowerInvariant();
 			return info.InputType == Models.FileType.Audio.Name
-				&& inputFormats.Contains(Path.GetExtension(info.FileName).ToLowerInvariant())
-				&& outputFormats.Contains(Path.GetExtension(info.OutFileName).ToLowerInvariant());
+				&& inputFormats.Contains(inExt)
+				&& outputFormats.Contains(outExt)
+				&& !string.Equals(inExt, outExt, StringComparison.OrdinalIgnoreCase);
 		}
 
 		public override Task ConvertFile(ConvertInfo info, string inFile, string outFile)

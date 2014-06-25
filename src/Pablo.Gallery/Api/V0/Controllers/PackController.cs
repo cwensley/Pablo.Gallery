@@ -13,6 +13,8 @@ using Pablo.Gallery.Logic.Extractors;
 using Pablo.Gallery.Models;
 using Pablo.Gallery.Logic.Filters;
 using Pablo.Gallery.Logic.Selectors;
+using System.Web;
+using System.Collections.Generic;
 
 namespace Pablo.Gallery.Api.V0.Controllers
 {
@@ -29,7 +31,8 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			var results = packs.Skip(page * size).Take(size).AsEnumerable();
 			return new PackResult
 			{
-				Packs = from p in results select new PackSummary(p)
+				Packs = from p in results
+				        select new PackSummary(p)
 			};
 		}
 
@@ -100,44 +103,36 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			return new FileDetail(file);
 		}
 
-		async Task GetStream(Stream outStream, string outFile, string packArchiveFileName, Models.File file, int? zoom, int? maxWidth, bool? aspect, bool? use9x, bool? ice)
+		static async Task GetStream(Stream outStream, string packArchiveFileName, Models.File file, Converter converter, ConvertInfo convertInfo)
 		{
 			using (outStream)
 			{
-				var extractor = ExtractorFactory.GetFileExtractor(packArchiveFileName);
-
-				var convertInfo = new ConvertInfo
+				convertInfo.ExtractFile = async destFile =>
 				{
-					Pack = file.Pack,
-					ExtractFile = async destFile => await extractor.ExtractFile(packArchiveFileName, file.FileName, destFile),
-					FileName = file.NativeFileName,
-					InputFormat = file.Format,
-					InputType = file.Type,
-					OutFileName = outFile,
-					Zoom = zoom,
-					MaxWidth = maxWidth,
-					LegacyAspect = aspect,
-					Use9x = use9x,
-					IceColor = ice
+					var extractor = ExtractorFactory.GetFileExtractor(packArchiveFileName);
+					await extractor.ExtractFile(packArchiveFileName, file.FileName, destFile);
 				};
-				var converter = ConverterFactory.GetConverter(convertInfo);
-				var stream = await converter.Convert(convertInfo);
-				stream.CopyTo(outStream);
+				using (var stream = await converter.Convert(convertInfo))
+				{
+					stream.CopyTo(outStream);
+				}
 			}
 		}
 
-		async Task GetRawStream(Stream outStream, string packArchiveFileName, Models.File file)
+		static async Task GetRawStream(Stream outStream, string packArchiveFileName, Models.File file)
 		{
 			using (outStream)
 			{
 				var extractor = ExtractorFactory.GetFileExtractor(packArchiveFileName);
-				var stream = await extractor.ExtractFile(packArchiveFileName, file.FileName);
-				stream.CopyTo(outStream);
+				using (var stream = await extractor.ExtractFile(packArchiveFileName, file.FileName))
+				{
+					stream.CopyTo(outStream);
+				}
 			}
 		}
 
 		[HttpGet]
-		public HttpResponseMessage Index([FromUri(Name = "id")]string packName, [FromUri(Name = "path")] string name, string format, int? zoom = null, [FromUri(Name = "max-width")] int? maxWidth = null, bool? aspect = null, bool? use9x = null, bool? ice = null)
+		public HttpResponseMessage Index([FromUri(Name = "id")]string packName, [FromUri(Name = "path")] string name, string format)
 		{
 			var file = db.Files.FirstOrDefault(r => r.Pack.Name == packName && r.Name == name);
 			if (file == null)
@@ -145,30 +140,32 @@ namespace Pablo.Gallery.Api.V0.Controllers
 
 			var download = string.Equals(format, "download", StringComparison.OrdinalIgnoreCase);
 
+			// TODO: support multiple archives
 			var packArchiveFileName = Path.Combine(Global.SixteenColorsArchiveLocation, file.Pack.NativeFileName);
-			var outFile = file.NativeFileName;
 
-			// TODO: Move most of this to the converters and file type, including per-converter options
+			var convertInfo = new ConvertInfo
+			{
+				Pack = file.Pack,
+				FileName = file.NativeFileName,
+				InputFormat = file.Format,
+				InputType = file.Type,
+				OutFileName = file.NativeFileName + "." + format,
+				Properties = Request.RequestUri.ParseQueryString()
+			};
+			// check if we can convert this file
+			var converter = ConverterFactory.GetConverter(convertInfo);
 
 			HttpContent content;
-			if (download || (file.Type == FileType.Audio.Name && Path.GetExtension(file.NativeFileName).TrimStart('.').Equals(format, StringComparison.OrdinalIgnoreCase)))
+			if (download || converter == null)
 			{
 				content = new PushStreamContent((s, hc, t) => GetRawStream(s, packArchiveFileName, file));
 			}
 			else
 			{
-				if (zoom != null)
-					outFile += ".z" + zoom.Value;
-				if (maxWidth != null)
-					outFile += ".x" + maxWidth.Value;
-				if (aspect != null)
-					outFile += aspect == true ? ".da" : ".na";
-				if (use9x != null)
-					outFile += use9x == true ? ".9x" : ".8x";
-				if (ice != null)
-					outFile += ice == true ? ".ice" : ".blink";
-				outFile += "." + format;
-				content = new PushStreamContent((s, hc, t) => GetStream(s, outFile, packArchiveFileName, file, zoom, maxWidth, aspect, use9x, ice));
+				// prepare for conversion, parse request options
+				converter.Prepare(convertInfo);
+
+				content = new PushStreamContent((s, hc, t) => GetStream(s, packArchiveFileName, file, converter, convertInfo));
 			}
 
 			var mediaType = GetMediaType(format);
@@ -176,7 +173,7 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			var disposition = mediaType == "application/octet-stream" ? "attachment" : "inline";
 			content.Headers.ContentDisposition = new ContentDispositionHeaderValue(disposition)
 			{
-				FileName = Path.GetFileName(outFile)
+				FileName = Path.GetFileName(convertInfo.OutFileName)
 			};
 
 			var response = new HttpResponseMessage { Content = content };

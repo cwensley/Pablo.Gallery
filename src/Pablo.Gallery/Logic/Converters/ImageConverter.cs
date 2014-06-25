@@ -19,7 +19,17 @@ namespace Pablo.Gallery.Logic.Converters
 
 		public override bool CanConvert(ConvertInfo info)
 		{
-			return info.InputType == Models.FileType.Image.Name;
+			return !string.IsNullOrEmpty(convertPath) && info.InputType == Models.FileType.Image.Name;
+		}
+
+		public override void Prepare(ConvertInfo info)
+		{
+			base.Prepare(info);
+			var outFile = Path.GetFileNameWithoutExtension(info.OutFileName);
+			var maxWidth = info.GetProperty<int?>("max-width");
+			if (maxWidth != null)
+				outFile += ".x" + maxWidth.Value;
+			info.OutFileName = outFile + Path.GetExtension(info.OutFileName);
 		}
 
 		public override Task ConvertFile(ConvertInfo info, string inFile, string outFile)
@@ -28,8 +38,9 @@ namespace Pablo.Gallery.Logic.Converters
 			var args = new StringBuilder();
 			args.AppendFormat("\"{0}\" -alpha on -background none -flatten ", inFile);
 
-			if (info.MaxWidth != null)
-				args.AppendFormat(" -resize '{0}>'", info.MaxWidth.Value);
+			var maxWidth = info.GetProperty<int?>("max-width");
+			if (maxWidth != null)
+				args.AppendFormat(" -resize '{0}>'", maxWidth.Value);
 
 			args.AppendFormat(" \"{0}\"", outFile);
 
