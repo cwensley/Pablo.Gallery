@@ -40,7 +40,7 @@ namespace Pablo.Gallery.Api.V0.Controllers
 			return new YearDetail
 			{
 				Year = year,
-				Packs = from p in results select new PackSummary(p)
+				Packs = (from p in results select new PackSummary(p)).ToArray()
 			};
 		}
 

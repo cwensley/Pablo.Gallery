@@ -15,6 +15,7 @@ namespace Pablo.Gallery.Models
 
 		public DateTime? LastLoginDate { get; set; }
 
+		[Index("ux_User_UserName", IsUnique = true)]
 		public string UserName { get; set; }
 
 		public string Email { get; set; }

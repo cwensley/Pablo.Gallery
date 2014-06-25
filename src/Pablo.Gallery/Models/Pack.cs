@@ -12,7 +12,7 @@ namespace Pablo.Gallery.Models
 		[DatabaseGenerated(DatabaseGeneratedOption.Identity)]
 		public int Id { get; set; }
 
-		[MaxLength(256)]
+		[MaxLength(256), Index("ux_Pack_Name", IsUnique = true)]
 		public string Name { get; set; }
 
 		public string FileName { get; set; }

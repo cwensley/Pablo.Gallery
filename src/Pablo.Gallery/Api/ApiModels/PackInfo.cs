@@ -31,7 +31,7 @@ namespace Pablo.Gallery.Api.ApiModels
 		public string Url { get { return "pack/" + pack.Name; } }
 
 		[DataMember(Name = "previewUrl")]
-		public string PreviewUrl { get { return pack.PreviewUrl(maxWidth: 320).TrimStart('~'); } }
+		public string PreviewUrl { get { return pack.PreviewUrl(maxWidth: 320).TrimStart('~'); } set { } }
 
 		[DataMember(Name = "name")]
 		public string Name { get { return pack.Name; } }
@@ -50,6 +50,7 @@ namespace Pablo.Gallery.Api.ApiModels
 		public FileSummary Thumbnail
 		{
 			get { return pack.Thumbnail != null ? new FileSummary(pack.Thumbnail) : null; }
+			set { }
 		}
 	}
 

@@ -4,6 +4,7 @@ using System.Data.Entity.Core.Objects;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Core.Metadata.Edm;
 using System.Linq;
+using System.Data.Entity.Migrations.History;
 
 namespace Pablo.Gallery.Models
 {
@@ -11,17 +12,7 @@ namespace Pablo.Gallery.Models
 	{
 		public Configuration()
 		{
-			// don't check or create database if it doesn't exist
-			// hide (harmless) npgsql exceptions when debugging
-			SetDatabaseInitializer<GalleryContext>(null);
-		}
-	}
-
-	public sealed class GalleryConfiguration : DbMigrationsConfiguration<GalleryContext>
-	{
-		public GalleryConfiguration()
-		{
-			AutomaticMigrationsEnabled = true;
+			// general configuration
 		}
 	}
 

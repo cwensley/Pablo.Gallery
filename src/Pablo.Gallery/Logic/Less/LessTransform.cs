@@ -30,6 +30,11 @@ namespace Pablo.Gallery.Logic.Less
 		{
 			return HostingEnvironment.MapPath("~/Content/" + path);
 		}
+
+		public bool UseCacheDependencies
+		{
+			get { return true; }
+		}
 	}
 
 	public class LessTransform : IBundleTransform
